@@ -32,8 +32,10 @@ def run_cmtools_run_sh_with_conf(muteria_conf, muteria_output, res):
     return ret
 #~ def run_cmtools_run_sh_with_conf()
 
-ORIGINAL_CONF_KEY = "__ORIGINAL_CONF__"
-TG_CONF_KEY = "__TG_CONF__"
+ORIGINAL_CONF_MODULE_KEY = "__ORIGINAL_CONF_MODULE__"
+ORIGINAL_CONF_DIR_KEY = "__ORIGINAL_CONF_DIR__"
+TG_CONF_MODULE_KEY = "__TG_CONF_MODULE__"
+TG_CONF_DIR_KEY = "__TG_CONF_DIR__"
 SEED_DIR_KEY = "__SEED_DIR__"
 MUTERIA_OUTPUT_KEY = "__MUTERIA_OUTPUT__"
 META_MUTANTS_LIST_FILE_KEY = "__META_MUTANTS_LIST_FILE__"
@@ -128,7 +130,10 @@ def collect_seeds(outdir, seeds_out, muteria_output, original_conf):
                                                         'get_seeds_conf.py')
     with open(tmp_conf_template) as f:
         with open(tmp_conf, 'w') as g:
-            g.write(f.read().replace(ORIGINAL_CONF_KEY, original_conf)\
+            o_c_dir = os.path.dirname(original_conf)
+            o_c_module = os.path.splitext(os.path.basename(original_conf))[0]
+            g.write(f.read().replace(ORIGINAL_CONF_DIR_KEY, o_c_dir)\
+                                .replace(ORIGINAL_CONF_MODULE_KEY, o_c_module)\
                                 .replace(MUTERIA_OUTPUT_KEY, muteria_output))
 
     # run muteria
@@ -159,7 +164,10 @@ def generate_tests(outdir, seeds_dir, muteria_output, original_conf, tg_conf):
                                                         'gen_tests_conf.py')
     with open(tmp_conf_template) as f:
         with open(tg_conf, 'w') as g:
-            g.write(f.read().replace(ORIGINAL_CONF_KEY, original_conf)\
+            o_c_dir = os.path.dirname(original_conf)
+            o_c_module = os.path.splitext(os.path.basename(original_conf))[0]
+            g.write(f.read().replace(ORIGINAL_CONF_DIR_KEY, o_c_dir)\
+                                .replace(ORIGINAL_CONF_MODULE_KEY, o_c_module)\
                                 .replace(MUTERIA_OUTPUT_KEY, muteria_output)\
                                             .replace(SEED_DIR_KEY, seeds_dir))
 
@@ -194,7 +202,10 @@ def mutant_execution(outdir, meta_mutants_list_file, \
                                                         'gen_tests_conf.py')
     with open(tmp_conf_template) as f:
         with open(tmp_conf, 'w') as g:
-            g.write(f.read().replace(TG_CONF_KEY, tg_conf)\
+            tg_c_dir = os.path.dirname(tg_conf)
+            tg_c_module = os.path.splitext(os.path.basename(tg_conf))[0]
+            g.write(f.read().replace(TG_CONF_DIR_KEY, tg_c_dir)\
+                                    .replace(TG_CONF_MODULE_KEY, tg_c_module)\
                                 .replace(MUTERIA_OUTPUT_KEY, muteria_output)\
                 .replace(META_MUTANTS_LIST_FILE_KEY, meta_mutants_list_file))
 
@@ -209,7 +220,7 @@ def mutant_execution(outdir, meta_mutants_list_file, \
 
 def summarize_data(outdir, summarized_data_dir, mutant_exec_res, \
                                                         mut_ex_prepa_data_dir):
-    pass
+    error_exit("To be implemented!")
 #~ def summarize_data()
 
 if __name__ == "__main__":

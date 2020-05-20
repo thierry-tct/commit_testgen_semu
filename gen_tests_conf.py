@@ -59,7 +59,7 @@ for distance in range(10):
                             ],
                             POST_TARGET_CMD_ORDERED_FLAGS_LIST=semu_sym_args)
                             )
-    semu_test_cmp.set_one_test_execution_timeout(semu_cmp_list)
+    semu_test_cmp.set_one_test_execution_timeout(t_exec_timeout)
     semu_cmp_list.append(semu_test_cmp)
 
 TESTCASE_TOOLS_CONFIGS = semu_cmp_list + [shadow_for_cmp]

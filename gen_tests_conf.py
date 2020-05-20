@@ -53,7 +53,9 @@ for distance in range(10):
                                 #('-semu-max-total-tests-gen', '1000')
                                 ('-semu-max-tests-gen-per-mutant', '500000'),
                                 ('-solver-backend', 'z3'),
-                                ('-max-memory', '150000')
+                                ('-max-memory', '150000'),
+
+                                ('-seed_out-dir', "__SEED_DIR__"),
                             ],
                             POST_TARGET_CMD_ORDERED_FLAGS_LIST=semu_sym_args)
                             )

@@ -14,6 +14,7 @@ import json
 import muteria.common.fs as common_fs
 from muteria.drivers.testgeneration.testcase_formats.ktest.utils import \
                                                     ConvertCollectKtestsSeeds
+import muteria.controller.checkpoint_tasks as cp_tasks
 
 def error_exit(msg):
     print("Error: {}!".format(msg))
@@ -39,6 +40,7 @@ TG_CONF_DIR_KEY = "__TG_CONF_DIR__"
 SEED_DIR_KEY = "__SEED_DIR__"
 MUTERIA_OUTPUT_KEY = "__MUTERIA_OUTPUT__"
 META_MUTANTS_LIST_FILE_KEY = "__META_MUTANTS_LIST_FILE__"
+FIRST_TIME_MUTANT_EXECUTION_KEY = '__FIRST_TIME_MUTANT_EXECUTION__'
 
 
 SEED_COLLECTION='seed_collection'.upper()
@@ -180,8 +182,16 @@ def generate_tests(outdir, seeds_dir, muteria_output, original_conf, tg_conf):
 
 def prepare_mutant_execution(outdir, muteria_output, prepare_data_dir, \
                                                     meta_mutants_list_file):
-    # TODO
+    if not os.path.isdir(prepare_data_dir):
+        os.mkdir(prepare_data_dir)
+
     # Store the test list per technique
+    test_list_file = os.path.join(muteria_output, 'latest', 'RESULTS_DATA', \
+                                'other_copied_results', 'testcasesInfos.json')
+    shutil.copy2(test_list_file, os.path.join(prepare_data_dir, \
+                                'gentests_'+os.path.basename(test_list_file)))
+
+    # TODO
 
     # Do fdupes with relevant output tests of semu and shadow and store map
 
@@ -200,6 +210,14 @@ def mutant_execution(outdir, meta_mutants_list_file, \
     tmp_conf = os.path.join(outdir, '.mut_exec_conf.py')
     tmp_conf_template = os.path.join(os.path.dirname(__file__), \
                                                         'gen_tests_conf.py')
+
+    first_time = False
+    cp_muteria = cp_tasks.TstOrderingDependency(common_fs.loadJSON(\
+                                os.path.join(muteria_output, 'latest', '_controller_dat', 'checkpoint_states', 'execution_state')))
+    has_sm_matrix = os.path.isfile(os.path.join(muteria_output, 'latest', 'RESULTS_DATA', 'matrices', 'STRONG_MUTATION.csv'))
+    if cp_muteria.task_is_complete(cp_tasks.Tasks.FINISHED) and not has_sm_matrix:
+        first_time = True
+
     with open(tmp_conf_template) as f:
         with open(tmp_conf, 'w') as g:
             tg_c_dir = os.path.dirname(tg_conf)
@@ -207,6 +225,7 @@ def mutant_execution(outdir, meta_mutants_list_file, \
             g.write(f.read().replace(TG_CONF_DIR_KEY, tg_c_dir)\
                                     .replace(TG_CONF_MODULE_KEY, tg_c_module)\
                                 .replace(MUTERIA_OUTPUT_KEY, muteria_output)\
+                        .replace(FIRST_TIME_MUTANT_EXECUTION_KEY, first_time)\
                 .replace(META_MUTANTS_LIST_FILE_KEY, meta_mutants_list_file))
 
     # Run relevant mutant computation

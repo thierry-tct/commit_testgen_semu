@@ -1,7 +1,7 @@
 import sys, os
 
 sys.path.insert(0, os.path.dirname("__TG_CONF_DIR__"))
-from __TG_CONF_DIR__ import *
+from __TG_CONF_MODULE__ import *
 sys.path.pop(0)
 
 # override
@@ -17,6 +17,20 @@ ENABLED_CRITERIA = [
         TestCriteria.STRONG_MUTATION,
 ]
 
+# Select tests and mutants
+import json
+def test_selector (testlist, maxselcount):
+    with open('__AVOID_META_TESTS_LIST_FILE__') as f:
+        avoid = set(json.load(f))
+    return list(set(testlist) - avoid)
+TESTCASES_SELECTION = test_selector
+    
+def mutant_selector(testobjectivelist, maxselcount):
+    with open('__AVOID_META_TESTS_LIST_FILE__') as f:
+        avoid = set(json.load(f))
+    return list(set(testobjectivelist) - avoid)
+CRITERIA_ELEM_SELECTIONS = {TestCriteria.STRONG_MUTATION: mutant_selector}
+    
 # Set the execution to start directly from criteria execution
 if __FIRST_TIME_MUTANT_EXECUTION__:
     RE_EXECUTE_FROM_CHECKPOINT_META_TASKS = ['TESTS_EXECUTION_SELECTION_PRIORITIZATION']

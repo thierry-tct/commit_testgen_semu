@@ -10,6 +10,7 @@ import sys
 import argparse
 import shutil
 import json
+import glob
 
 import muteria.common.fs as common_fs
 from muteria.drivers import DriversUtils
@@ -18,6 +19,8 @@ from muteria.drivers.testgeneration.testcase_formats.ktest.utils import \
 from muteria.drivers.testgeneration.testcase_formats.ktest.ktest import \
                                                                 KTestTestFormat
 import muteria.controller.checkpoint_tasks as cp_tasks
+
+import load
 
 def error_exit(msg):
     print("Error: {}!".format(msg))
@@ -42,7 +45,8 @@ TG_CONF_MODULE_KEY = "__TG_CONF_MODULE__"
 TG_CONF_DIR_KEY = "__TG_CONF_DIR__"
 SEED_DIR_KEY = "__SEED_DIR__"
 MUTERIA_OUTPUT_KEY = "__MUTERIA_OUTPUT__"
-META_MUTANTS_LIST_FILE_KEY = "__META_MUTANTS_LIST_FILE__"
+AVOID_META_TESTS_LIST_FILE_KEY = "__AVOID_META_TESTS_LIST_FILE__"
+AVOID_META_MUTANTS_LIST_FILE_KEY = "__AVOID_META_MUTANTS_LIST_FILE__"
 FIRST_TIME_MUTANT_EXECUTION_KEY = '__FIRST_TIME_MUTANT_EXECUTION__'
 
 
@@ -76,8 +80,10 @@ def main():
     mut_ex_prepa_data_dir = os.path.join(outdir, "mut_ex_prepa_data")
     summarized_data_dir = os.path.join(outdir, "summarized_data_dir")
     mutant_exec_res = os.path.join(outdir, "mutant_exec_res")
-    meta_mutants_list_file = os.path.join(outdir, mut_ex_prepa_data_dir, \
-                                                "meta_mutants_list_file.txt")
+    avoid_meta_mutants_list_file = os.path.join(outdir, mut_ex_prepa_data_dir, \
+                                            "avoid_meta_mutants_list_file.txt")
+    avoid_meta_tests_list_file = os.path.join(outdir, mut_ex_prepa_data_dir, \
+                                            "avoid_meta_tests_list_file.txt")
 
     # check checkpoint and load if necessary
     cp_data = {
@@ -107,13 +113,14 @@ def main():
     if not cp_data[MUTANT_EXECUTION_PREPA]:
         print ("#(DBG): Executing {} ...".format(MUTANT_EXECUTION_PREPA))
         prepare_mutant_execution(outdir, muteria_output, original_conf, \
-                                mut_ex_prepa_data_dir, meta_mutants_list_file)
+                            mut_ex_prepa_data_dir, avoid_meta_tests_list_file,\
+                                                avoid_meta_mutants_list_file)
         cp_data[MUTANT_EXECUTION_PREPA] = True
         common_fs.dumpJSON(cp_data, checkpoint_file, pretty=True)
 
     if not cp_data[MUTANT_EXECUTION]:
         print ("#(DBG): Executing {} ...".format(MUTANT_EXECUTION))
-        mutant_execution(outdir, meta_mutants_list_file, \
+        mutant_execution(outdir, avoid_meta_tests_list_file, avoid_meta_mutants_list_file, \
                                     muteria_output, tg_conf, mutant_exec_res)
         cp_data[MUTANT_EXECUTION] = True
         common_fs.dumpJSON(cp_data, checkpoint_file, pretty=True)
@@ -184,7 +191,8 @@ def generate_tests(outdir, seeds_dir, muteria_output, original_conf, tg_conf):
 #~ def generate_tests()
 
 def prepare_mutant_execution(outdir, muteria_output, original_conf, \
-                                    prepare_data_dir, meta_mutants_list_file):
+                                    prepare_data_dir, \
+                    avoid_meta_tests_list_file, avoid_meta_mutants_list_file):
     if not os.path.isdir(prepare_data_dir):
         os.mkdir(prepare_data_dir)
 
@@ -241,7 +249,6 @@ def prepare_mutant_execution(outdir, muteria_output, original_conf, \
     stored_map = {}
     stored_map_file = os.path.join(prepare_data_dir, 'stored_test_map.json')
     tests_to_avoid = []
-    tests_to_avoid_file = os.path.join(prepare_data_dir, 'tests_to_avoid.json')
     
     ### Shadow
     custom_bin = '/home/shadowvm/shadow/klee-change/Release+Asserts/bin/'
@@ -268,7 +275,7 @@ def prepare_mutant_execution(outdir, muteria_output, original_conf, \
 
     ## store dup map and tests to avoid
     common_fs.dumpJSON(stored_map, stored_map_file, pretty=True)
-    common_fs.dumpJSON(tests_to_avoid, tests_to_avoid_file, pretty=True)
+    common_fs.dumpJSON(tests_to_avoid, avoid_meta_tests_list_file, pretty=True)
 
     # XXX TODO: modify tg_conf to use tests to avoid
 
@@ -276,19 +283,41 @@ def prepare_mutant_execution(outdir, muteria_output, original_conf, \
     r_criteria_dir = os.path.join(relevant_exec_outfolder, 'criteria_workdir')
     shutil.copytree(r_criteria_dir, os.path.join(muteria_output, 'latest', 'criteria_workdir'))
 
-    # TODO
     # Get the selected mutants (mutants that are Not relevant w.r.t dev tests)
-    r_res = os.path.join(os.path.dirname(os.path.dirname(original_conf)), 'res')
+    r_res_top = os.path.dirname(os.path.dirname(original_conf))
+    r_res = os.path.join(r_res_top, 'res')
+    r_res_tar = glob.glob(r_res_top+'/*res.tar.gz')[0]
+    
     ## untar res
-    ## get relevant mutats to relevant tests
-    ## remove untar
-    ## filter mutants (remove those relevant w.r.t. dev tests)
-    ## save filter mutants as to avoid
+    if os.system('cd {} && tar -xzf {} --exclude {} --exclude {} && test -d res'.format(\
+                        r_res_top, os.path.basename(r_res_tar), \
+                        'post/RESULTS_DATA/other_copied_results/Flakiness', \
+                        'pre/RESULTS_DATA/other_copied_results/Flakiness')) != 0:
+        error_exit("untar re failed")
+    ## get relevant mutants to relevant tests
+    all_tests, fail_tests, relevant_mutants_to_relevant_tests, \
+                mutants_to_killingtests, tests_to_killed_mutants = load.load (r_res, fault_revealing=False)
 
-    # update tg_conf to have test selection and mutant selection
+    ## remove untar
+    shutil.rmtree(r_res)
+    ## filter mutants (remove those relevant w.r.t. dev tests)
+    rel_to_reltests_file = os.path.join(prepare_data_dir, 'relevantmuts_to_relevanttests.json')
+    mutants_to_avoid = []
+    ### mutants relevant w.r.t. devtests added to avoid
+    for mut, r_tests in relevant_mutants_to_relevant_tests.items():
+        for rt in r_tests:
+            alias, _ = DriversUtils.reverse_meta_element(rt)
+            if alias.startswith("custom_devtests"):
+                mutants_to_avoid.append(mut)
+                break
+
+    ## save filter mutants as to avoid
+    common_fs.dumpJSON(relevant_mutants_to_relevant_tests, rel_to_reltests_file, pretty=True)
+    common_fs.dumpJSON(mutants_to_avoid, avoid_meta_mutants_list_file, pretty=True)
+
 #~ def prepare_mutant_execution()
 
-def mutant_execution(outdir, meta_mutants_list_file, \
+def mutant_execution(outdir, avoid_meta_tests_list_file, avoid_meta_mutants_list_file, \
                                                 muteria_output, tg_conf, res):
     # set the temporary conf
     tmp_conf = os.path.join(outdir, '.mut_exec_conf.py')
@@ -310,7 +339,8 @@ def mutant_execution(outdir, meta_mutants_list_file, \
                                     .replace(TG_CONF_MODULE_KEY, tg_c_module)\
                                 .replace(MUTERIA_OUTPUT_KEY, muteria_output)\
                         .replace(FIRST_TIME_MUTANT_EXECUTION_KEY, first_time)\
-                .replace(META_MUTANTS_LIST_FILE_KEY, meta_mutants_list_file))
+                .replace(AVOID_META_TESTS_LIST_FILE_KEY, avoid_meta_tests_list_file)\
+                .replace(AVOID_META_MUTANTS_LIST_FILE_KEY, avoid_meta_mutants_list_file))
 
     # Run relevant mutant computation
     # Everything starting from test execution after all test generations (see cmtools/run.sh) TODO: implement it in mut_exe_conf

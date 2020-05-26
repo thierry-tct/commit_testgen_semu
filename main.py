@@ -12,8 +12,11 @@ import shutil
 import json
 
 import muteria.common.fs as common_fs
+from muteria.drivers import DriversUtils
 from muteria.drivers.testgeneration.testcase_formats.ktest.utils import \
                                                     ConvertCollectKtestsSeeds
+from muteria.drivers.testgeneration.testcase_formats.ktest.ktest import \
+                                                                KTestTestFormat
 import muteria.controller.checkpoint_tasks as cp_tasks
 
 def error_exit(msg):
@@ -103,7 +106,7 @@ def main():
 
     if not cp_data[MUTANT_EXECUTION_PREPA]:
         print ("#(DBG): Executing {} ...".format(MUTANT_EXECUTION_PREPA))
-        prepare_mutant_execution(outdir, muteria_output, \
+        prepare_mutant_execution(outdir, muteria_output, original_conf, \
                                 mut_ex_prepa_data_dir, meta_mutants_list_file)
         cp_data[MUTANT_EXECUTION_PREPA] = True
         common_fs.dumpJSON(cp_data, checkpoint_file, pretty=True)
@@ -149,7 +152,7 @@ def collect_seeds(outdir, seeds_out, muteria_output, original_conf):
     if os.path.isdir(seeds_out):
         shutil.rmtree(seeds_out)
     zesti_tests_dir = os.path.join(muteria_output, 'latest', \
-                    'testscases_workdir', 'shadow_se:0', 'tests_files.tar.gz')
+                    'testscases_workdir', 'shadow_se', 'tests_files.tar.gz')
     klee_tests_dir = None # TODO: get the relevant mutant semu gene test that is closer to a dev test
     ccks = ConvertCollectKtestsSeeds(custom_binary_dir=None)
     ccks.generate_seeds_from_various_ktests(seeds_out, \
@@ -180,8 +183,8 @@ def generate_tests(outdir, seeds_dir, muteria_output, original_conf, tg_conf):
         error_exit("Muteria failed during test generation")
 #~ def generate_tests()
 
-def prepare_mutant_execution(outdir, muteria_output, prepare_data_dir, \
-                                                    meta_mutants_list_file):
+def prepare_mutant_execution(outdir, muteria_output, original_conf, \
+                                    prepare_data_dir, meta_mutants_list_file):
     if not os.path.isdir(prepare_data_dir):
         os.mkdir(prepare_data_dir)
 
@@ -191,17 +194,98 @@ def prepare_mutant_execution(outdir, muteria_output, prepare_data_dir, \
     shutil.copy2(test_list_file, os.path.join(prepare_data_dir, \
                                 'gentests_'+os.path.basename(test_list_file)))
 
-    # TODO
+    relevant_exec_outfolder = os.path.join(os.path.dirname(original_conf), \
+                                                            'output', 'latest')
 
     # Do fdupes with relevant output tests of semu and shadow and store map
+    r_shadow_tests_src = os.path.join(relevant_exec_outfolder, \
+                            'testscases_workdir', 'shadow_se', 'tests_files')
+    r_shadow_tests_src_tar = r_shadow_tests_src + '.tar.gz' 
+    r_semu_tests_src = os.path.join(relevant_exec_outfolder, \
+                                'testscases_workdir', 'semu', 'tests_files')
+    r_semu_tests_src_tar = r_semu_tests_src + '.tar.gz'
 
-    # remove redundant tests
+    cur_exec_outfolder = os.path.join(os.path.dirname(muteria_output), 'latest')
+    cur_exec_tg_folder = os.path.join(cur_exec_outfolder, 'testscases_workdir')
+    cur_shadow_tests_src = os.path.join(cur_exec_tg_folder, 'shadow_se', \
+                                                                'tests_files')
+    cur_shadow_tests_src_tar = cur_shadow_tests_src + '.tar.gz'
+    cur_semu_tests_srcs = []
+    cur_semu_tests_src_tars = []
+    for f in os.listdir(cur_exec_tg_folder):
+        if f.startswith('semu'):
+            cur_semu_tests_srcs.append(os.path.join(cur_exec_tg_folder, f, 'tests_files'))
+            cur_semu_tests_src_tars.append(cur_semu_tests_srcs[-1] + '.tar.gz')
+    # use folder fdupes from KtestFormat in muteria 
+    ## decompress the folders
+    common_fs.TarGz.decompressDir(r_shadow_tests_src_tar)
+    common_fs.TarGz.decompressDir(r_semu_tests_src_tar)
+    common_fs.TarGz.decompressDir(cur_shadow_tests_src_tar)
+    for i in range (len(cur_semu_tests_src_tars)):
+        common_fs.TarGz.decompressDir(cur_semu_tests_src_tars[i])
+
+    ## apply fdupes
+    def post_test_dup(stored_map, tests_to_avoid, origin, kepttest2duptest_map):
+        for kept, duplist in kepttest2duptest_map.items():
+            alias, _ = DriversUtils.reverse_meta_element(kept)
+            if alias == origin:
+                stored_map[kept] = []
+                for dup in duplist:
+                    dalias, dtest = DriversUtils.reverse_meta_element(dup)
+                    if dalias == origin:
+                        continue
+                    stored_map[kept].append(dup)
+                    tests_to_avoid.append(dup)
+    #~ def post_test_dup()
+
+    stored_map = {}
+    stored_map_file = os.path.join(prepare_data_dir, 'stored_test_map.json')
+    tests_to_avoid = []
+    tests_to_avoid_file = os.path.join(prepare_data_dir, 'tests_to_avoid.json')
+    
+    ### Shadow
+    custom_bin = '/home/shadowvm/shadow/klee-change/Release+Asserts/bin/'
+    folders = [r_shadow_tests_src, cur_shadow_tests_src]
+    folder2alias = {d: os.path.basename(os.path.dirname(d)) for d in folders}
+    origin = folder2alias[r_shadow_tests_src]
+    kepttest2duptest_map, test2keptdup = KTestTestFormat.cross_folder_fdupes(\
+                                            custom_bin, folders, folder2alias)
+    post_test_dup(stored_map, tests_to_avoid, origin, kepttest2duptest_map)
+    ## remove the untar dirs
+    for d in folders:
+        shutil.rmtree(d)
+
+    ### Semu
+    custom_bin = None
+    folders = [r_semu_tests_src] + cur_semu_tests_srcs
+    folder2alias = {d: os.path.basename(os.path.dirname(d)) for d in folders}
+    origin = folder2alias[r_semu_tests_src]
+    kepttest2duptest_map, test2keptdup = KTestTestFormat.cross_folder_fdupes(\
+                                            custom_bin, folders, folder2alias)
+    post_test_dup(stored_map, tests_to_avoid, origin, kepttest2duptest_map)
+    for d in folders:
+        shutil.rmtree(d)
+
+    ## store dup map and tests to avoid
+    common_fs.dumpJSON(stored_map, stored_map_file, pretty=True)
+    common_fs.dumpJSON(tests_to_avoid, tests_to_avoid_file, pretty=True)
+
+    # XXX TODO: modify tg_conf to use tests to avoid
 
     # Get the criteria dir and add to the muteria out
+    r_criteria_dir = os.path.join(relevant_exec_outfolder, 'criteria_workdir')
+    shutil.copytree(r_criteria_dir, os.path.join(muteria_output, 'latest', 'criteria_workdir'))
 
+    # TODO
     # Get the selected mutants (mutants that are Not relevant w.r.t dev tests)
+    r_res = os.path.join(os.path.dirname(os.path.dirname(original_conf)), 'res')
+    ## untar res
+    ## get relevant mutats to relevant tests
+    ## remove untar
+    ## filter mutants (remove those relevant w.r.t. dev tests)
+    ## save filter mutants as to avoid
 
-    pass
+    # update tg_conf to have test selection and mutant selection
 #~ def prepare_mutant_execution()
 
 def mutant_execution(outdir, meta_mutants_list_file, \

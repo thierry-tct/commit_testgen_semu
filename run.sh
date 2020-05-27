@@ -1,39 +1,64 @@
 #! /bin/bash
 
+# ./run.sh <id> <CPU count>
+
 set -u
 
 error_exit()
 {
-    echo "@run.sh-ERROR: $1"
+    echo "ERROR: $1"
     exit 1
 }
 
+# id
+# cpu
+# root
+# expensive
+
+[ $# = 2 ] || error_exit "expect 2 argument (id and number of cpu). passed $# agrs"
+
+mountfold=$(readlink -f $1)
+id=$2
+
+####
+
 TOPDIR=$(dirname $(readlink -f $0))
+workspace_dir=$(readlink -f $mountfold/executions/workspace/$id)
+tmpcmd=in_docker_run.sh
+in_docker_script=$workspace_dir/$tmpcmd
 
-[ $# -eq 1 -o $# -eq 2 ] || error_exit "Invalid number of arguments"
+echo '
+#! /bin/bash
+set -u
+#export COREUTILS_TEST_EXPENSIVE=off
+#export COREUTILS_TEST_ROOT=on
+export COREUTILS_TEST_ROOT=1
+TOPDIR=$(dirname $(readlink -f $0))
+conf_py=$TOPDIR/ctrl/conf.py
+runner=/work_scripts/main.py
+outdir=/work_scripts/DATA/$(basename $TOPDIR)
+python $runner $outdir $conf_py 
+exit $?
+' > $in_docker_script
 
-in_top_dir=$(readlink -f $1)
-test -d $in_top_dir || error_exit "specified in_top_di missing"
-out_top_dir=$in_top_dir/ANALYSIS_OUT
-test -d $out_top_dir || mkdir $out_top_dir || error_exit "failed to mae out_top_dir"
+chmod +x $in_docker_script
 
-in_docker=0
+# RUN DOCKER
+cd $mountfold || error_exit "cd failed to mountfold"
+# Check this for ptrace user uid problem: https://seravo.fi/2019/align-user-ids-inside-and-outside-docker-with-subuser-mapping
+# Also: https://github.com/rocker-org/rocker/wiki/Sharing-files-with-host-machine
+#sudo docker run -it --rm --cap-add=SYS_PTRACE --security-opt seccomp=unconfined -security-opt apparmor=unconfined --mount type=bind,src=$(pwd),dst=/work --user 1000:1000 --privileged \
+sudo docker run -it --rm --cap-add=SYS_PTRACE --security-opt seccomp=unconfined \
+                                        --mount type=bind,src=$(pwd),dst=/work \
+                                        --mount type=bind,src=$TOPDIR,dst=/work_scripts \
+                                        --user 1000:1000 --privileged \
+									    --cpus=${CPU} maweimarvin/cm bash -c "cd /work/executions/workspace/$id && bash ./${tmpcmd}"
 
-if [ $# -eq 2 ]; then
-    [ "$2" = 'docker' ] || error_exit "secon parameter must be docker"
-    in_docker=1
-fi
+# Copy info about changed lines
+#test -f $workspace_dir/res/klee_changed_src.summary \
+#                    || cp $mountfold/shadow-test/coreutils/$id/klee_changed_src.summary $workspace_dir/res/klee_changed_src.summary \
+#                    || error_exit "failed to copy change lines summary"
 
-if [ $in_docker -eq 1 ]
-then
-    docker_image_name="maweimarvin/cm"
-    sudo docker run -it --rm --cap-add=SYS_PTRACE --security-opt seccomp=unconfined \
-                                         --mount type=bind,src=$in_top_dir,dst=/work_in \
-                                         --mount type=bind,src=$out_top_dir,dst=/work_out \
-                                         --mount type=bind,src=$TOPDIR,dst=/work_script \
-                                         --user 1000:1000 --privileged $docker_image_name bash -c "pip install seaborn; python /work_script/main.py /work_in /work_out"    
-else
-    python3 $TOPDIR/main.py $in_top_dir $out_top_dir || error_exit "Execution failed"
-fi
+rm $in_docker_script || error_exit "failed to remove in_docker_script"
 
-echo "@run.sh: DONE!"
+echo "ALL DONE!"

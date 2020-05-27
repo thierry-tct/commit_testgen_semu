@@ -36,7 +36,7 @@ export COREUTILS_TEST_ROOT=1
 TOPDIR=$(dirname $(readlink -f $0))
 conf_py=$TOPDIR/ctrl/conf.py
 runner=/work_scripts/main.py
-outdir=/work_scripts/DATA/$(basename $TOPDIR)
+outdir=/work_data/$(basename $TOPDIR)
 python $runner $outdir $conf_py 
 exit $?
 ' > $in_docker_script
@@ -51,6 +51,7 @@ cd $mountfold || error_exit "cd failed to mountfold"
 sudo docker run -it --rm --cap-add=SYS_PTRACE --security-opt seccomp=unconfined \
                                         --mount type=bind,src=$(pwd),dst=/work \
                                         --mount type=bind,src=$TOPDIR,dst=/work_scripts \
+					--mount type=bind,src=$(readlink -f $TOPDIR/../DATA),dst=/work_data \
                                         --user 1000:1000 --privileged \
 									    --cpus=${CPU} maweimarvin/cm bash -c "cd /work/executions/workspace/$id && bash ./${tmpcmd}"
 

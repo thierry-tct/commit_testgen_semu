@@ -19,6 +19,7 @@ error_exit()
 
 mountfold=$(readlink -f $1)
 id=$2
+CPU=1
 
 ####
 

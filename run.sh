@@ -30,6 +30,7 @@ in_docker_script=$workspace_dir/$tmpcmd
 echo '
 #! /bin/bash
 set -u
+pip install -U git+https://github.com/muteria/muteria
 #export COREUTILS_TEST_EXPENSIVE=off
 #export COREUTILS_TEST_ROOT=on
 export COREUTILS_TEST_ROOT=1

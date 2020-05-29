@@ -137,7 +137,7 @@ def main():
 
 def collect_seeds(outdir, seeds_out, muteria_output, original_conf):
     # set the temporary conf
-    tmp_conf = os.path.join(outdir, '.seed_conf.py')
+    tmp_conf = os.path.join(outdir, '_seed_conf.py')
     tmp_conf_template = os.path.join(os.path.dirname(__file__), \
                                                         'get_seeds_conf.py')
     with open(tmp_conf_template) as f:
@@ -320,7 +320,7 @@ def prepare_mutant_execution(outdir, muteria_output, original_conf, \
 def mutant_execution(outdir, avoid_meta_tests_list_file, avoid_meta_mutants_list_file, \
                                                 muteria_output, tg_conf, res):
     # set the temporary conf
-    tmp_conf = os.path.join(outdir, '.mut_exec_conf.py')
+    tmp_conf = os.path.join(outdir, '_mut_exec_conf.py')
     tmp_conf_template = os.path.join(os.path.dirname(__file__), \
                                                         'gen_tests_conf.py')
 

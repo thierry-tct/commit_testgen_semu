@@ -1,6 +1,6 @@
 import sys, os
 
-sys.path.insert(0, os.path.dirname("__TG_CONF_DIR__"))
+sys.path.insert(0, "__TG_CONF_DIR__")
 from __TG_CONF_MODULE__ import *
 sys.path.pop(0)
 

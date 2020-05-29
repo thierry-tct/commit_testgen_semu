@@ -60,7 +60,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('outdir', help="outdir of the execution")
     parser.add_argument('original_conf', help="config of the project")
-    parser.add_argument('--cleanstart', type=bool, action="store_true", \
+    parser.add_argument('--cleanstart', action="store_true", \
                                                 help="delete out and restart")
 
     args = parser.parse_args()

@@ -24,6 +24,7 @@ import load
 
 def error_exit(msg):
     print("Error: {}!".format(msg))
+    exit(1)
 #~ def error_exit()
 
 def run_muteria_with_conf (conf_py):

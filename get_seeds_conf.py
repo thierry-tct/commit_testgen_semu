@@ -30,3 +30,15 @@ TESTCASE_TOOLS_CONFIGS = [
         dev_test,
         shadow_for_seeds,
 ]
+
+old_build_func = CODE_BUILDER_FUNCTION
+def override_build(*args, **kwargs):
+    # Make sure that shadow don't generate tests, but just replay
+    # Remove the klee changes
+    if flags_list is None:
+        flags_list = [ "-DRESOLVE_KLEE_CHANGE=11" ]
+		else:	
+        flags_list.append("-DRESOLVE_KLEE_CHANGE=11")
+    return old_build_func(*args, **kwargs)
+  
+CODE_BUILDER_FUNCTION=override_build

@@ -62,4 +62,4 @@ for distance in range(10):
     semu_test_cmp.set_one_test_execution_timeout(t_exec_timeout)
     semu_cmp_list.append(semu_test_cmp)
 
-TESTCASE_TOOLS_CONFIGS = semu_cmp_list + [shadow_for_cmp]
+TESTCASE_TOOLS_CONFIGS = semu_cmp_list + [shadow_for_cmp] + [dev_test]

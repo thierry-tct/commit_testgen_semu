@@ -22,7 +22,9 @@ import json
 def test_selector (testlist, maxselcount):
     with open('__AVOID_META_TESTS_LIST_FILE__') as f:
         avoid = set(json.load(f))
-    return list(set(testlist) - avoid)
+    cand = set(testlist) - avoid
+    # remove dev_tests
+    return [mt for mt in cand if (mt.startswith('semu') or mt.startswith('shadow_se'))]
 TESTCASES_SELECTION = test_selector
     
 def mutant_selector(testobjectivelist, maxselcount):

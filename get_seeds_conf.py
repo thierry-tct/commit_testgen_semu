@@ -27,5 +27,6 @@ shadow_for_seeds = TestcaseToolsConfig(tooltype=TestToolType.USE_CODE_AND_TESTS,
                         ))
                         
 TESTCASE_TOOLS_CONFIGS = [
+        dev_test,
         shadow_for_seeds,
 ]

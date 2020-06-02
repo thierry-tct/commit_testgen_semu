@@ -136,7 +136,7 @@ def main():
     print("\n# DONE!\n")
 #~ def main()
 
-def collect_seeds(outdir, seeds_out, muteria_output, original_conf):
+def collect_seeds(outdir, seeds_out, muteria_output, original_conf, compress_dest=True):
     # set the temporary conf
     tmp_conf = os.path.join(outdir, '_seed_conf.py')
     tmp_conf_template = os.path.join(os.path.dirname(__file__), \
@@ -164,7 +164,8 @@ def collect_seeds(outdir, seeds_out, muteria_output, original_conf):
     klee_tests_dir = None # TODO: get the relevant mutant semu gene test that is closer to a dev test
     ccks = ConvertCollectKtestsSeeds(custom_binary_dir=None)
     ccks.generate_seeds_from_various_ktests(seeds_out, \
-                                            zesti_tests_dir, klee_tests_dir)
+                                            zesti_tests_dir, klee_tests_dir, \
+                                            compress_dest=compress_dest)
 
     # delete muteria output
     os.remove(tmp_conf)
@@ -184,11 +185,26 @@ def generate_tests(outdir, seeds_dir, muteria_output, original_conf, tg_conf):
                                 .replace(MUTERIA_OUTPUT_KEY, muteria_output)\
                                             .replace(SEED_DIR_KEY, seeds_dir))
 
+    # prepare seeds
+    tar_seeds_dir = seeds_dir + '.tar.gz'
+    if not os.path.isdir(seeds_dir):
+        if not os.path.isfile(tar_seeds_dir):
+            error_exit("seed dir ({}) and tar seed dir ({}) are missing".format(\
+                                                        seeds_dir, tar_seeds_dir))
+        # decompress
+        common_fs.TarGz.decompressDir(tar_seeds_dir)
+        
     # run muteria
     if os.path.isdir(muteria_output):
         shutil.rmtree(muteria_output)
-    if run_muteria_with_conf(tg_conf) != 0:
-        error_exit("Muteria failed during test generation")
+    retcode = run_muteria_with_conf(tg_conf)
+    
+    # revert seeds
+    if os.path.isfile(tar_seeds_dir):
+        shutil.rmtree(seeds_dir)
+    
+    if retcode != 0:
+        error_exit("Muteria failed during test generation")        
 #~ def generate_tests()
 
 def prepare_mutant_execution(outdir, muteria_output, original_conf, \

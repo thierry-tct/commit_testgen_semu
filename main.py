@@ -349,7 +349,7 @@ def mutant_execution(outdir, avoid_meta_tests_list_file, avoid_meta_mutants_list
                                                         'gen_tests_conf.py')
 
     first_time = False
-    cp_muteria = common_fs.loadJSON(os.path.join(muteria_output, 'latest', '_controller_dat', 'checkpoint_states', 'execution_state')))
+    cp_muteria = common_fs.loadJSON(os.path.join(muteria_output, 'latest', '_controller_dat', 'checkpoint_states', 'execution_state'))
     has_sm_matrix = os.path.isfile(os.path.join(muteria_output, 'latest', 'RESULTS_DATA', 'matrices', 'STRONG_MUTATION.csv'))
     if type(cp_muteria) == dict and cp_muteria["CHECKPOINT_DATA"] == "CHECK_POINTED_TASK_COMPLETED" and not has_sm_matrix:
         first_time = True

@@ -32,7 +32,7 @@ shadow_for_cmp = TestcaseToolsConfig(tooltype=TestToolType.USE_CODE_AND_TESTS,\
 
 shadow_for_cmp.set_one_test_execution_timeout(t_exec_timeout)
 
-from from muteria.drivers.testgeneration.tools_by_languages.c.semu.driver_config \
+from muteria.drivers.testgeneration.tools_by_languages.c.semu.driver_config \
                                              import MetaMuSource, DriverConfigSemu
 semu_cmp_list = []
 for distance in range(10):

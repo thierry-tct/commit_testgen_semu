@@ -18,7 +18,7 @@ from muteria.drivers.testgeneration.testcase_formats.ktest.utils import \
                                                     ConvertCollectKtestsSeeds
 from muteria.drivers.testgeneration.testcase_formats.ktest.ktest import \
                                                                 KTestTestFormat
-import muteria.controller.checkpoint_tasks as cp_tasks
+#import muteria.controller.checkpoint_tasks as cp_tasks
 
 import load
 
@@ -349,10 +349,9 @@ def mutant_execution(outdir, avoid_meta_tests_list_file, avoid_meta_mutants_list
                                                         'gen_tests_conf.py')
 
     first_time = False
-    cp_muteria = cp_tasks.TstOrderingDependency(common_fs.loadJSON(\
-                                os.path.join(muteria_output, 'latest', '_controller_dat', 'checkpoint_states', 'execution_state')))
+    cp_muteria = common_fs.loadJSON(os.path.join(muteria_output, 'latest', '_controller_dat', 'checkpoint_states', 'execution_state')))
     has_sm_matrix = os.path.isfile(os.path.join(muteria_output, 'latest', 'RESULTS_DATA', 'matrices', 'STRONG_MUTATION.csv'))
-    if cp_muteria.task_is_complete(cp_tasks.Tasks.FINISHED) and not has_sm_matrix:
+    if type(cp_muteria) == dict and cp_muteria["CHECKPOINT_DATA"] == "CHECK_POINTED_TASK_COMPLETED" and not has_sm_matrix:
         first_time = True
 
     with open(tmp_conf_template) as f:

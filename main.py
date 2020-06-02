@@ -230,17 +230,21 @@ def prepare_mutant_execution(outdir, muteria_output, original_conf, \
                                 'testscases_workdir', 'semu', 'tests_files')
     r_semu_tests_src_tar = r_semu_tests_src + '.tar.gz'
 
-    cur_exec_outfolder = os.path.join(os.path.dirname(muteria_output), 'latest')
+    cur_exec_outfolder = os.path.join(muteria_output, 'latest')
     cur_exec_tg_folder = os.path.join(cur_exec_outfolder, 'testscases_workdir')
-    cur_shadow_tests_src = os.path.join(cur_exec_tg_folder, 'shadow_se', \
-                                                                'tests_files')
-    cur_shadow_tests_src_tar = cur_shadow_tests_src + '.tar.gz'
+    
+    cur_shadow_tests_src = None
     cur_semu_tests_srcs = []
     cur_semu_tests_src_tars = []
     for f in os.listdir(cur_exec_tg_folder):
         if f.startswith('semu'):
             cur_semu_tests_srcs.append(os.path.join(cur_exec_tg_folder, f, 'tests_files'))
             cur_semu_tests_src_tars.append(cur_semu_tests_srcs[-1] + '.tar.gz')
+        elif f.startswith('shadow_se'):
+            if cur_shadow_tests_src is not None:
+                error_exit("Multiple shadow_se folders exist")
+            cur_shadow_tests_src = os.path.join(cur_exec_tg_folder, f, 'tests_files')
+            cur_shadow_tests_src_tar = cur_shadow_tests_src + '.tar.gz'
     # use folder fdupes from KtestFormat in muteria 
     ## decompress the folders
     common_fs.TarGz.decompressDir(r_shadow_tests_src_tar)

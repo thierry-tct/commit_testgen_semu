@@ -35,7 +35,8 @@ CRITERIA_ELEM_SELECTIONS = {TestCriteria.STRONG_MUTATION: mutant_selector}
     
 # Set the execution to start directly from criteria execution
 if __FIRST_TIME_MUTANT_EXECUTION__:
-    RE_EXECUTE_FROM_CHECKPOINT_META_TASKS = ['TESTS_EXECUTION_SELECTION_PRIORITIZATION']
+    RE_EXECUTE_FROM_CHECKPOINT_META_TASKS = ['TESTS_EXECUTION_SELECTION_PRIORITIZATION', \
+                                             'CRITERIA_EXECUTION_SELECTION_PRIORITIZATION']
 
 import muteria.drivers.testgeneration as tc_driver
 

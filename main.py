@@ -361,7 +361,7 @@ def mutant_execution(outdir, avoid_meta_tests_list_file, avoid_meta_mutants_list
             g.write(f.read().replace(TG_CONF_DIR_KEY, tg_c_dir)\
                                     .replace(TG_CONF_MODULE_KEY, tg_c_module)\
                                 .replace(MUTERIA_OUTPUT_KEY, muteria_output)\
-                        .replace(FIRST_TIME_MUTANT_EXECUTION_KEY, first_time)\
+                        .replace(FIRST_TIME_MUTANT_EXECUTION_KEY, str(first_time))\
                 .replace(AVOID_META_TESTS_LIST_FILE_KEY, avoid_meta_tests_list_file)\
                 .replace(AVOID_META_MUTANTS_LIST_FILE_KEY, avoid_meta_mutants_list_file))
 

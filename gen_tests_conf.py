@@ -57,7 +57,7 @@ for distance in range(10):
                                 ('-solver-backend', 'z3'),
                                 ('-max-memory', '150000'),
 
-                                ('-seed_out-dir', "__SEED_DIR__"),
+                                ('-seed-out-dir', "__SEED_DIR__"),
                             ],
                             POST_TARGET_CMD_ORDERED_FLAGS_LIST=semu_sym_args,
                             DRIVER_CONFIG = DriverConfigSemu(meta_mutant_source=MetaMuSource.ANNOTATION),

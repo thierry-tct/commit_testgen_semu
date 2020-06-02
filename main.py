@@ -346,7 +346,7 @@ def mutant_execution(outdir, avoid_meta_tests_list_file, avoid_meta_mutants_list
     # set the temporary conf
     tmp_conf = os.path.join(outdir, '_mut_exec_conf.py')
     tmp_conf_template = os.path.join(os.path.dirname(__file__), \
-                                                        'gen_tests_conf.py')
+                                                        'mut_exe_conf.py')
 
     first_time = False
     cp_muteria = common_fs.loadJSON(os.path.join(muteria_output, 'latest', '_controller_dat', 'checkpoint_states', 'execution_state'))

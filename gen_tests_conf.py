@@ -8,7 +8,11 @@ sys.path.pop(0)
 OUTPUT_ROOT_DIR="__MUTERIA_OUTPUT__"
 
 # remove all criteria
-ENABLED_CRITERIA = []
+ENABLED_CRITERIA = [
+        TestCriteria.STATEMENT_COVERAGE, 
+        TestCriteria.BRANCH_COVERAGE,
+        TestCriteria.FUNCTION_COVERAGE,
+]
 
 # remove all test tools and create a shadow tool to collect tests
 from muteria.drivers.testgeneration.tools_by_languages.c.shadow_se.\

@@ -7,7 +7,7 @@ sys.path.pop(0)
 # override
 OUTPUT_ROOT_DIR="__MUTERIA_OUTPUT__"
 
-# remove all criteria
+# remove all criteria except code coverage
 ENABLED_CRITERIA = [
         TestCriteria.STATEMENT_COVERAGE, 
         TestCriteria.BRANCH_COVERAGE,

@@ -303,8 +303,8 @@ def prepare_mutant_execution(outdir, muteria_output, original_conf, \
     # Get the criteria dir and add to the muteria out
     r_criteria_dir = os.path.join(relevant_exec_outfolder, 'criteria_workdir')
     dest_crit_work = os.path.join(muteria_output, 'latest', 'criteria_workdir')
-    #if os.path.isdir(dest_crit_work):
-    #    shutil.rmtree(dest_crit_work)
+    if os.path.isdir(os.path.join(dest_crit_work, 'mart_0')):
+        shutil.rmtree(os.path.join(dest_crit_work, 'mart_0'))
     shutil.copytree(os.path.join(r_criteria_dir, 'mart_0'), os.path.join(dest_crit_work, 'mart_0'))
 
     # Get the selected mutants (mutants that are Not relevant w.r.t dev tests)

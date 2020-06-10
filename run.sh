@@ -31,6 +31,16 @@ in_docker_script=$workspace_dir/$tmpcmd
 echo '
 #! /bin/bash
 set -u
+
+# Temporary
+cd /home/klee-semu/klee_build \
+	&& git clone https://github.com/thierry-tct/klee-semu /tmp/klee-semu \
+	&& cp /tmp/klee-semu/lib/Mutation/*.{cpp,h} ../klee_src/lib/Mutation \
+	&& rm -rf /tmp/klee-semu
+	&& make
+[ $? -ne 0 ] && { echo "ERROR: Semu update failed!"; exit 1; }
+
+# Actual execution
 pip install -U git+https://github.com/muteria/muteria
 #export COREUTILS_TEST_EXPENSIVE=off
 #export COREUTILS_TEST_ROOT=on

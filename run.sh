@@ -33,12 +33,14 @@ echo '
 set -u
 
 # Temporary
+curdir=`pwd`
 cd /home/klee-semu/klee_build \
 	&& sudo git clone https://github.com/thierry-tct/klee-semu /tmp/klee-semu \
 	&& sudo cp /tmp/klee-semu/lib/Mutation/*.{cpp,h} ../klee_src/lib/Mutation \
 	&& sudo rm -rf /tmp/klee-semu \
 	&& sudo make -j2
 [ $? -ne 0 ] && { echo "ERROR: Semu update failed!"; exit 1; }
+cd $curdir
 
 # Actual execution
 pip install -U git+https://github.com/muteria/muteria

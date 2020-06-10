@@ -64,7 +64,7 @@ for distance in range(10):
                                 ('-seed-out-dir', "__SEED_DIR__"),
                             ],
                             POST_TARGET_CMD_ORDERED_FLAGS_LIST=semu_sym_args,
-                            DRIVER_CONFIG = DriverConfigSemu(meta_mutant_source=MetaMuSource.ANNOTATION),
+                            DRIVER_CONFIG = DriverConfigSemu(meta_mutant_source=MetaMuSource.ANNOTATION, verbose_generation=True),
                         )
                      )
     semu_test_cmp.set_one_test_execution_timeout(t_exec_timeout)

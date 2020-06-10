@@ -34,10 +34,10 @@ set -u
 
 # Temporary
 cd /home/klee-semu/klee_build \
-	&& git clone https://github.com/thierry-tct/klee-semu /tmp/klee-semu \
-	&& cp /tmp/klee-semu/lib/Mutation/*.{cpp,h} ../klee_src/lib/Mutation \
-	&& rm -rf /tmp/klee-semu
-	&& make
+	&& sudo git clone https://github.com/thierry-tct/klee-semu /tmp/klee-semu \
+	&& sudo cp /tmp/klee-semu/lib/Mutation/*.{cpp,h} ../klee_src/lib/Mutation \
+	&& sudo rm -rf /tmp/klee-semu \
+	&& sudo make -j2
 [ $? -ne 0 ] && { echo "ERROR: Semu update failed!"; exit 1; }
 
 # Actual execution

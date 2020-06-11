@@ -51,6 +51,7 @@ for distance in range(10):
                                 ('-semu-forkprocessfor-segv-externalcalls',),
                                 #('-semu-testsgen-only-for-critical-diffs',),
                                 ('-semu-consider-outenv-for-diffs',),
+                                ('-semu-disable-post-mutation-check',), # Suport for higher order mutants
 
                                 ('-semu-mutant-max-fork', str(distance)),
                                 ('-semu-checknum-before-testgen-for-discarded', '0'),

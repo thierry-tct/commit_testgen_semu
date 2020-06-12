@@ -7,8 +7,14 @@ sys.path.pop(0)
 # override
 OUTPUT_ROOT_DIR="__MUTERIA_OUTPUT__"
 
-# remove all criteria
-ENABLED_CRITERIA = []
+# remove all criteria to generate seeds from all tests
+# Keep only coverage to generate only seeds of tests that 
+# cover the change
+ENABLED_CRITERIA = [
+        TestCriteria.STATEMENT_COVERAGE, 
+        TestCriteria.BRANCH_COVERAGE,
+        TestCriteria.FUNCTION_COVERAGE,
+]
 
 # remove all test tools and create a shadow tool to collect tests
 from muteria.drivers.testgeneration.tools_by_languages.c.shadow_se.\

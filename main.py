@@ -29,7 +29,7 @@ def error_exit(msg):
 
 def run_muteria_with_conf (conf_py):
     cmd = " ".join(['muteria', '--config', conf_py, '--lang c', 'run'])
-    ret = os.system(cmd)
+    ret = os.system("yes | " + cmd)
     return ret
 #~ def run_muteria_with_conf ()
 

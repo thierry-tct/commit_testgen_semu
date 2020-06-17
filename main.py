@@ -29,12 +29,14 @@ def error_exit(msg):
 
 def run_muteria_with_conf (conf_py):
     cmd = " ".join(['muteria', '--config', conf_py, '--lang c', 'run'])
-    ret = os.system("yes | " + cmd)
+    ret = os.system(cmd)
     return ret
 #~ def run_muteria_with_conf ()
 
 def run_cmtools_run_sh_with_conf(muteria_conf, muteria_output, res):
     srcipt = '/home/cmtools/run.sh'
+    # First patch script to remove yes (causes problem for some tests generation)
+    os.system("sed -i'' 's/yes | //g' {}".format(script))
     cmd = " ".join([srcipt, muteria_conf, muteria_output, res])
     ret = os.system(cmd)
     return ret

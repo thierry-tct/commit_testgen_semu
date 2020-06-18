@@ -50,3 +50,11 @@ def override_build(repo_root_dir, exe_rel_paths, compiler, flags_list, clean,\
                                                                 reconfigure)
   
 CODE_BUILDER_FUNCTION=override_build
+
+# Hook to get sym args
+try:
+    semu_sym_args
+    with open("__SYM_ARGS_STORE_FILE__", 'w') as f:
+        json.dump(semu_sym_args, f)
+except NameError:
+    pass

@@ -143,13 +143,16 @@ def collect_seeds(outdir, seeds_out, muteria_output, original_conf, compress_des
     tmp_conf = os.path.join(outdir, '_seed_conf.py')
     tmp_conf_template = os.path.join(os.path.dirname(__file__), \
                                                         'get_seeds_conf.py')
+    prev_sym_args_store_file = tmp_conf + ".symargs.json"
     with open(tmp_conf_template) as f:
         with open(tmp_conf, 'w') as g:
             o_c_dir = os.path.dirname(original_conf)
             o_c_module = os.path.splitext(os.path.basename(original_conf))[0]
             g.write(f.read().replace(ORIGINAL_CONF_DIR_KEY, o_c_dir)\
                                 .replace(ORIGINAL_CONF_MODULE_KEY, o_c_module)\
-                                .replace(MUTERIA_OUTPUT_KEY, muteria_output))
+                                .replace(MUTERIA_OUTPUT_KEY, muteria_output)\
+                                .replace('__SYM_ARGS_STORE_FILE__', \
+                                                    prev_sym_args_store_file))
 
     # run muteria
     if os.path.isdir(muteria_output):
@@ -163,11 +166,19 @@ def collect_seeds(outdir, seeds_out, muteria_output, original_conf, compress_des
         shutil.rmtree(seeds_out)
     zesti_tests_dir = os.path.join(muteria_output, 'latest', \
                     'testscases_workdir', 'shadow_se', 'tests_files.tar.gz')
-    klee_tests_dir = None # TODO: get the relevant mutant semu gene test that is closer to a dev test
+    if os.path.isfile(prev_sym_args_store_file):
+        prev_sym_args = common_fs.loadJSON(prev_sym_args_store_file)
+        os.remove(prev_sym_args_store_file)
+        klee_tests_dir_or_sym_args = prev_sym_args
+    else:
+        klee_tests_dir_or_sym_args = None
     ccks = ConvertCollectKtestsSeeds(custom_binary_dir=None)
     ccks.generate_seeds_from_various_ktests(seeds_out, \
-                                            zesti_tests_dir, klee_tests_dir, \
-                                            compress_dest=compress_dest)
+                                      zesti_tests_dir, \
+                                      src_new_klee_ktest_dir_or_sym_args=\
+                                               klee_tests_dir_or_sym_args, \
+                                      klee_ktest_is_sym_args=True, \
+                                      compress_dest=compress_dest)
 
     # delete muteria output
     os.remove(tmp_conf)

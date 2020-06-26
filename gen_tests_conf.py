@@ -52,14 +52,14 @@ common_pre_target_args = [
                                 ('-semu-mutant-state-continue-proba', '0.0'),
                                 ('-semu-precondition-length', '-2'), # start from top
                                 #('-semu-max-total-tests-gen', '1000')
-                                ('-semu-max-tests-gen-per-mutant', '500000'),
+                                ('-semu-max-tests-gen-per-mutant', '2000'),
                                 ('-solver-backend', 'z3'),
                                 ('-max-memory', '150000'),
 
                                 ('-seed-out-dir', "__SEED_DIR__"),
                             ]
-nsample = 10
-for only_branch, dist_start, dist_step in [(True, 0, 1), (False, 0, 10)]:
+nsample = 5
+for only_branch, dist_start, dist_step in [(True, 0, 2), (False, 0, 20)]:
     for distance in range(dist_start, (nsample * dist_step) + dist_start, dist_step):
         custom_pta = [('-semu-mutant-max-fork', str(distance)),]
         omb = ''

@@ -8,6 +8,17 @@ sys.path.pop(0)
 OUTPUT_ROOT_DIR="__MUTERIA_OUTPUT__"
 
 # remove all criteria except code coverage
+from muteria.drivers.criteria.tools_by_languages.c.gcov.\
+                                        driver_config import DriverConfigGCov
+gnucov = CriteriaToolsConfig(tooltype=CriteriaToolType.USE_ONLY_CODE, toolname='gcov', config_id=0, \
+                                tool_user_custom=ToolUserCustom(
+                                    DRIVER_CONFIG=DriverConfigGCov(allow_missing_coverage=True)
+                                )
+                            )
+CRITERIA_TOOLS_CONFIGS_BY_CRITERIA[TestCriteria.STATEMENT_COVERAGE] = [gnucov]
+CRITERIA_TOOLS_CONFIGS_BY_CRITERIA[TestCriteria.BRANCH_COVERAGE] = [gnucov]
+CRITERIA_TOOLS_CONFIGS_BY_CRITERIA[TestCriteria.FUNCTION_COVERAGE] = [gnucov]
+
 ENABLED_CRITERIA = [
         TestCriteria.STATEMENT_COVERAGE, 
         TestCriteria.BRANCH_COVERAGE,

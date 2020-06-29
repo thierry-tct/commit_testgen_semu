@@ -389,7 +389,23 @@ def mutant_execution(outdir, avoid_meta_tests_list_file, avoid_meta_mutants_list
 
 def summarize_data(outdir, summarized_data_dir, mutant_exec_res, \
                                                         mut_ex_prepa_data_dir):
-    error_exit("To be implemented!")
+    all_tests, fail_tests, relevant_mutants_to_relevant_tests, \
+                mutants_to_killingtests, tests_to_killed_mutants = load.load (mutant_exec_res, fault_revealing=False)
+    if not os.path.isdir(summarized_data_dir):
+        os.mkdir(summarized_data_dir)
+    cmp_result_file = os.path.join(summarized_data_dir, "compare_results.json")
+    # get relevant muts by tools
+    toollist = []
+    # TODO: get tool list
+    tool2relmuts = {tool: [] for too in toollist}
+    for relmut, t_list in relevant_mutants_to_relevant_tests.items():
+        for meta_t in t_list:
+            toolalias, test = DriversUtils.reverse_meta_element(meta_t)
+            assert toolalias in toollist, "PB"
+            tool2relmuts[toolalias].append(relmut)
+    common_fs.dumpJSON(tool2relmuts, cmp_result_file, pretty=True)
+    
+    error_exit("To be completed!")
 #~ def summarize_data()
 
 if __name__ == "__main__":

@@ -395,8 +395,9 @@ def summarize_data(outdir, summarized_data_dir, mutant_exec_res, \
         os.mkdir(summarized_data_dir)
     cmp_result_file = os.path.join(summarized_data_dir, "compare_results.json")
     # get relevant muts by tools
-    toollist = []
-    # TODO: get tool list
+    # get tool list
+    tinf = common_fs.loadJSON(os.path.join(mutant_exec_res, "post/RESULTS_DATA/other_copied_results/testcasesInfos.json"))
+    toollist = list(set(tinf["CUSTOM"]) - {"custom_devtests"})
     tool2relmuts = {tool: [] for too in toollist}
     for relmut, t_list in relevant_mutants_to_relevant_tests.items():
         for meta_t in t_list:

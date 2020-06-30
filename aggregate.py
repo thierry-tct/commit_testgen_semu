@@ -174,7 +174,7 @@ def main():
             linesplotfile = os.path.join(outdir, key+"-lineplot"+omb)
             plotBoxes(data_dict, sorted(list(data_dict)), boxplotfile, ['white']*20, ylabel="Relevant Mutation Score", yticks_range=range(0,101,10), fontsize=26, title=None)
             trend_data = {}
-            for alias, arr in data_dict:
+            for alias, arr in data_dict.items():
                 trend_data[alias] = {}
                 for pos, val in enumerate(arr):
                     trend_data[alias][pos + 1] = val

@@ -112,7 +112,7 @@ def plotTrend(name_to_data, image_file, xlabel, ylabel, yticks_range=np.arange(0
     fontsize = 26
     maxlenx = max([len(plotobj[t]['x']) for t in order])
     for ti,tech in enumerate(order):
-        plt.plot(plotobj[tech]['x'], plotobj[tech]['y'], color=colors[ti], linestyle=linestyles[ti], linewidth=linewidths[ti], marker=markers, label=tech, alpha=0.8)
+        plt.plot(plotobj[tech]['x'], plotobj[tech]['y'], color=colors[ti], linestyle=linestyles[ti], linewidth=linewidths[ti], marker=markers[ti], label=tech, alpha=0.8)
     plt.ylabel(ylabel, fontsize=fontsize)
     plt.xlabel(xlabel, fontsize=fontsize)
     step = 1 #int(min(maxx, 10))

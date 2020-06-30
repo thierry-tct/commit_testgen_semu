@@ -1,5 +1,7 @@
 #! /usr/bin/env python
 
+from __future__ import print_function
+
 import os, sys, json
 
 import matplotlib
@@ -135,8 +137,8 @@ def plotTrend(name_to_data, image_file, xlabel, ylabel, yticks_range=np.arange(0
 #~ def plotTrend()
 
 def main():
-    assert len(argv) == 2
-    input_topdir = argv[1]
+    assert len(sys.argv) == 2
+    input_topdir = sys.argv[1]
     outdir = os.path.join(input_topdir, "OUTPUT")
     
     # load data

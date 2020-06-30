@@ -114,7 +114,7 @@ def plotTrend(name_to_data, image_file, xlabel, ylabel, yticks_range=np.arange(0
     plt.ylabel(ylabel, fontsize=fontsize)
     plt.xlabel(xlabel, fontsize=fontsize)
     step = 1 #int(min(maxx, 10))
-    plt.xticks(list(range(1, maxlenx+1, step)), fontsize=fontsize-5)
+    plt.xticks(list(range(0, maxlenx+1, step)), fontsize=fontsize-5)
     plt.yticks(yticks_range, fontsize=fontsize-5)
     legendMode=1 if len(order) <= 3 else 2
     if legendMode==1:
@@ -171,7 +171,12 @@ def main():
             boxplotfile = os.path.join(outdir, key+"-boxplot"+omb)
             linesplotfile = os.path.join(outdir, key+"-lineplot"+omb)
             plotBoxes(data_dict, sorted(list(data_dict)), boxplotfile, ['white']*20, ylabel="Relevant Mutation Score", yticks_range=range(0,101,10), fontsize=26, title=None)
-            plotTrend(data_dict, linesplotfile, xlabel="Commit", ylabel="Relevant Mutation Score", yticks_range=range(0,101,10), order=sorted(list(data_dict))) 
+            trend_data = {}
+            for alias, arr in data_dict:
+                trend_data[alias] = {}
+                for pos, val in enumerate(arr):
+                    trend_data[alias][pos + 1] = val
+            plotTrend(trend_data, linesplotfile, xlabel="Commit", ylabel="Relevant Mutation Score", yticks_range=range(0,101,10), order=sorted(list(data_dict))) 
 #~ def main()
 
 if __name__ == "__main__":

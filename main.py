@@ -402,7 +402,7 @@ def summarize_data(outdir, summarized_data_dir, mutant_exec_res, \
     for relmut, t_list in relevant_mutants_to_relevant_tests.items():
         for meta_t in t_list:
             toolalias, test = DriversUtils.reverse_meta_element(meta_t)
-            assert toolalias in toollist, "PB"
+            assert toolalias in toollist, "PB: toolalias ({}) not in toollist ({})".format(toolalias, toollist)
             tool2relmuts[toolalias].append(relmut)
     common_fs.dumpJSON(tool2relmuts, cmp_result_file, pretty=True)
     

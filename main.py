@@ -389,27 +389,72 @@ def mutant_execution(outdir, avoid_meta_tests_list_file, avoid_meta_mutants_list
 
 def summarize_data(outdir, summarized_data_dir, mutant_exec_res, \
                                                         mut_ex_prepa_data_dir):
+    other_rel_to_reltests_file = os.path.join(mut_ex_prepa_data_dir, 'relevantmuts_to_relevanttests.json')
+    other_rel_to_reltests = common_fs.loadJSON(other_rel_to_reltests_file)
+    stored_map_file = os.path.join(prepare_data_dir, 'stored_test_map.json')
+    stored_map = common_fs.loadJSON(stored_map_file)
+    
+    def get_too2relmuts(relmuts_to_reltests, toollist=None):
+        res = {tool: set() for tool in toollist} if toollist is not None else {}
+        for relmut, t_list in relmuts_to_reltests.items():
+            for meta_t in t_list:
+                toolalias, test = DriversUtils.reverse_meta_element(meta_t)
+                if toollist is None:
+                    if toolalias not in res:
+                        res[toolalias] = set()
+                else:
+                    assert toolalias in toollist, "PB: toolalias ({}) not in toollist ({})".format(toolalias, toollist)
+                res[toolalias].add(relmut)
+        for toolalias in res:
+            res[toolalias] = list(res[toolalias])
+        return res
+    #~ def get_too2relmuts()
+    
+    other_tool_to_relmuts = get_too2relmuts(other_rel_to_reltests)
+    
     all_tests, fail_tests, relevant_mutants_to_relevant_tests, \
                 mutants_to_killingtests, tests_to_killed_mutants = load.load (mutant_exec_res, fault_revealing=False)
     if not os.path.isdir(summarized_data_dir):
         os.mkdir(summarized_data_dir)
+    
     cmp_result_file = os.path.join(summarized_data_dir, "compare_results.json")
+    initial_relmuts_file = os.path.join(summarized_data_dir, "initial_relevant.json")
+    rMS_file = os.path.join(summarized_data_dir, "rMS.json")
+    
     # get relevant muts by tools
     # get tool list
     tinf = common_fs.loadJSON(os.path.join(mutant_exec_res, "post/RESULTS_DATA/other_copied_results/testcasesInfos.json"))
-    toollist = list(set(tinf["CUSTOM"]) - {"custom_devtests"})
-    tool2relmuts = {tool: set() for tool in toollist}
-    for relmut, t_list in relevant_mutants_to_relevant_tests.items():
-        for meta_t in t_list:
-            toolalias, test = DriversUtils.reverse_meta_element(meta_t)
-            assert toolalias in toollist, "PB: toolalias ({}) not in toollist ({})".format(toolalias, toollist)
-            tool2relmuts[toolalias].add(relmut)
-    for toolalias in tool2relmuts:
-        tool2relmuts[toolalias] = list(tool2relmuts[toolalias])
-        
-    common_fs.dumpJSON(tool2relmuts, cmp_result_file, pretty=True)
+    tool2relmuts = get_too2relmuts(relevant_mutants_to_relevant_tests, toollist=list(set(tinf["CUSTOM"]) - {"custom_devtests"}))
     
-    error_exit("To be completed!")
+    # update with stored map
+    for relmut, t_list in other_rel_to_reltests.items():
+        for other_meta_t in t_list:
+            if other_meta_t in stored_map:
+                for meta_t in stored_map[other_meta_t]:
+                    toolalias, test = DriversUtils.reverse_meta_element(meta_t)
+                    assert toolalias in tool2relmuts, "PB2: "
+                    tool2relmuts[toolalias].append(relmut)
+    for toolalias in tool2relmuts:
+        tool2relmuts[toolalias] = list(set(tool2relmuts[toolalias]))    
+    
+    common_fs.dumpJSON(tool2relmuts, cmp_result_file, pretty=True)
+    common_fs.dumpJSON(other_tool_to_relmuts, initial_relmuts_file, pretty=True)
+    
+    # Compute and print the relevant mutation score per tool
+    all_rel_muts = set()
+    devtest_rel = set()
+    for talias, rellist in tool2relmuts.items():
+        all_rel_muts |= set(rellist)
+    for talias, rellist in other_tool_to_relmuts.items():
+        all_rel_muts |= set(rellist)
+        if talias.startswith("custom_devtests"):
+            devtest_rel |= set(rellist)
+            
+    rMS = {"ALL": {}, "ADDITIONAL": {}}
+    for talias, rellist in tool2relmuts.items():
+        rMS["ALL"][talias] = len(rellist) * 100.0 / len(all_rel_muts)
+        rMS["ADDITIONAL"][talias] = len(rellist) * 100.0 / len(all_rel_muts - devtest_rel)
+    common_fs.dumpJSON(rMS, rMS_file, pretty=True)
 #~ def summarize_data()
 
 if __name__ == "__main__":

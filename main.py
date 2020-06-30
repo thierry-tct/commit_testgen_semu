@@ -453,7 +453,7 @@ def summarize_data(outdir, summarized_data_dir, mutant_exec_res, \
     rMS = {"ALL": {}, "ADDITIONAL": {}}
     for talias, rellist in tool2relmuts.items():
         rMS["ALL"][talias] = len(rellist) * 100.0 / len(all_rel_muts)
-        rMS["ADDITIONAL"][talias] = len(rellist) * 100.0 / len(all_rel_muts - devtest_rel)
+        rMS["ADDITIONAL"][talias] = len(set(rellist) - devtest_rel) * 100.0 / len(all_rel_muts - devtest_rel)
     common_fs.dumpJSON(rMS, rMS_file, pretty=True)
 #~ def summarize_data()
 

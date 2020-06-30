@@ -116,13 +116,13 @@ def plotTrend(name_to_data, image_file, xlabel, ylabel, yticks_range=np.arange(0
     plt.ylabel(ylabel, fontsize=fontsize)
     plt.xlabel(xlabel, fontsize=fontsize)
     step = 1 #int(min(maxx, 10))
-    plt.xticks(list(range(0, maxlenx+1, step)), fontsize=fontsize-5)
+    plt.xticks(list(range(1, maxlenx+1, step)), fontsize=fontsize-5)
     plt.yticks(yticks_range, fontsize=fontsize-5)
     legendMode=1 if len(order) <= 3 else 2
     if legendMode==1:
-        lgd = plt.legend(bbox_to_anchor=(0., 0.98, 1., .102), loc=2, ncol=3, mode="expand", fontsize=fontsize, borderaxespad=0.)
+        lgd = plt.legend(bbox_to_anchor=(0., 0.98, 1., .102), loc=2, ncol=3, mode="expand", fontsize=fontsize-5, borderaxespad=0.)
     elif legendMode==2:
-        lgd = plt.legend(bbox_to_anchor=(0., 0.98, 1.02, .152), loc=2, ncol=3, mode="expand", fontsize=fontsize, borderaxespad=0.)
+        lgd = plt.legend(bbox_to_anchor=(0., 0.98, 1.02, .152), loc=2, ncol=3, mode="expand", fontsize=fontsize-5, borderaxespad=0.)
     else:
         assert False, "invalid legend mode (expect either 1 or 2)"
     #plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.00), shadow=True, ncol=3)
@@ -167,8 +167,8 @@ def main():
                 resdict[alias].append(val)
     
         # Plotting
-        resdict_omb = {k:v for k,v in resdict.items() if ('semu' not in k or 'omb' in k)}
-        resdict_non_omb = {k:v for k,v in resdict.items() if ('semu' not in k or 'omb' not in k)}
+        resdict_omb = {k.replace("_cmp", "").replace("_se", ""):v for k,v in resdict.items() if ('semu' not in k or 'omb' in k)}
+        resdict_non_omb = {k.replace("_cmp", "").replace("_se", ""):v for k,v in resdict.items() if ('semu' not in k or 'omb' not in k)}
         for omb, data_dict in [("", resdict_non_omb), ("-omb", resdict_omb)]:
             boxplotfile = os.path.join(outdir, key+"-boxplot"+omb)
             linesplotfile = os.path.join(outdir, key+"-lineplot"+omb)

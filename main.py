@@ -398,7 +398,7 @@ def summarize_data(outdir, summarized_data_dir, mutant_exec_res, \
     # get tool list
     tinf = common_fs.loadJSON(os.path.join(mutant_exec_res, "post/RESULTS_DATA/other_copied_results/testcasesInfos.json"))
     toollist = list(set(tinf["CUSTOM"]) - {"custom_devtests"})
-    tool2relmuts = {tool: [] for too in toollist}
+    tool2relmuts = {tool: [] for tool in toollist}
     for relmut, t_list in relevant_mutants_to_relevant_tests.items():
         for meta_t in t_list:
             toolalias, test = DriversUtils.reverse_meta_element(meta_t)

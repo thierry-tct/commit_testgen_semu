@@ -398,12 +398,15 @@ def summarize_data(outdir, summarized_data_dir, mutant_exec_res, \
     # get tool list
     tinf = common_fs.loadJSON(os.path.join(mutant_exec_res, "post/RESULTS_DATA/other_copied_results/testcasesInfos.json"))
     toollist = list(set(tinf["CUSTOM"]) - {"custom_devtests"})
-    tool2relmuts = {tool: [] for tool in toollist}
+    tool2relmuts = {tool: set() for tool in toollist}
     for relmut, t_list in relevant_mutants_to_relevant_tests.items():
         for meta_t in t_list:
             toolalias, test = DriversUtils.reverse_meta_element(meta_t)
             assert toolalias in toollist, "PB: toolalias ({}) not in toollist ({})".format(toolalias, toollist)
-            tool2relmuts[toolalias].append(relmut)
+            tool2relmuts[toolalias].add(relmut)
+    for toolalias in tool2relmuts:
+        tool2relmuts[toolalias] = list(tool2relmuts[toolalias])
+        
     common_fs.dumpJSON(tool2relmuts, cmp_result_file, pretty=True)
     
     error_exit("To be completed!")

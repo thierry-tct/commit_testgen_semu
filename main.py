@@ -391,7 +391,7 @@ def summarize_data(outdir, summarized_data_dir, mutant_exec_res, \
                                                         mut_ex_prepa_data_dir):
     other_rel_to_reltests_file = os.path.join(mut_ex_prepa_data_dir, 'relevantmuts_to_relevanttests.json')
     other_rel_to_reltests = common_fs.loadJSON(other_rel_to_reltests_file)
-    stored_map_file = os.path.join(prepare_data_dir, 'stored_test_map.json')
+    stored_map_file = os.path.join(mut_ex_prepa_data_dir, 'stored_test_map.json')
     stored_map = common_fs.loadJSON(stored_map_file)
     
     def get_too2relmuts(relmuts_to_reltests, toollist=None):

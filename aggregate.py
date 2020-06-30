@@ -33,6 +33,11 @@ def wilcoxon(list1, list2, isranksum=True):
     return p_value
 #~ def wilcoxon()
 
+def loadJson (filename):
+    with open(filename) as fp:
+        return json.load(fp)
+#~ def loadJson ()
+
 def dumpJson (obj, filename, pretty=True):
     with open(filename, "w") as fp:
         if pretty:
@@ -85,8 +90,9 @@ colors_bw = ['white', 'whitesmoke', 'lightgray', 'silver', 'darkgrey', 'gray', '
 colors = ["green", 'blue', 'red', "black", "maroon", "magenta", "cyan"]
 linestyles = ['solid', 'solid', 'dashed', 'dashed', 'dashdot', 'dotted', 'solid']
 linewidths = [1.75, 1.75, 2.5, 2.5, 3.25, 3.75, 2]
+markers = ['o', 'x', '^', 's', '*', '+', 'H', 'v', 'p', 'd']
 
-def plotTrend(name_to_data, image_file, xlabel, ylabel, order=None):
+def plotTrend(name_to_data, image_file, xlabel, ylabel, yticks_range=np.arange(0,1.01,0.2), order=None):
     if order is None:
         order = list(name_to_data)
 
@@ -102,14 +108,14 @@ def plotTrend(name_to_data, image_file, xlabel, ylabel, order=None):
     plt.rcParams["axes.linewidth"]  = 1.25
     #sns.set_context("talk")
     fontsize = 26
-    maxx = max([max(plotobj[t]['x']) for t in order])
+    maxlenx = max([len(plotobj[t]['x']) for t in order])
     for ti,tech in enumerate(order):
-        plt.plot(plotobj[tech]['x'], plotobj[tech]['y'], color=colors[ti], linestyle=linestyles[ti], linewidth=linewidths[ti], label=tech, alpha=0.8)
+        plt.plot(plotobj[tech]['x'], plotobj[tech]['y'], color=colors[ti], linestyle=linestyles[ti], linewidth=linewidths[ti], marker=markers, label=tech, alpha=0.8)
     plt.ylabel(ylabel, fontsize=fontsize)
     plt.xlabel(xlabel, fontsize=fontsize)
-    step = int(min(maxx, 10))
-    plt.xticks(list(range(1, maxx+1, int(maxx/step))) + [maxx] if (maxx % step == 0 or type(maxx) == int) else np.arange(1,maxx+1, maxx/float(step)), fontsize=fontsize-5)
-    plt.yticks(np.arange(0,1.01,0.2), fontsize=fontsize-5)
+    step = 1 #int(min(maxx, 10))
+    plt.xticks(list(range(1, maxlenx+1, step)), fontsize=fontsize-5)
+    plt.yticks(yticks_range, fontsize=fontsize-5)
     legendMode=1 if len(order) <= 3 else 2
     if legendMode==1:
         lgd = plt.legend(bbox_to_anchor=(0., 0.98, 1., .102), loc=2, ncol=3, mode="expand", fontsize=fontsize, borderaxespad=0.)
@@ -129,7 +135,43 @@ def plotTrend(name_to_data, image_file, xlabel, ylabel, order=None):
 #~ def plotTrend()
 
 def main():
-    pass
+    assert len(argv) == 2
+    input_topdir = argv[1]
+    outdir = os.path.join(input_topdir, "OUTPUT")
+    
+    # load data
+    id2rMSobj = {}
+    for d in os.listdir(input_topdir):
+        if not os.path.isdir(d) or d == "OUTPUT":
+            continue
+        # load data
+        filename = os.path.join(input_topdir, d, 'rMS.json')
+        id2rMSobj[d] = loadJson(filename)
+    
+    if not os.path.isdir(outdir):
+        os.mkdir(outdir)
+        
+    # For each category, get id to rMS
+    all_all_alias2rMSlist = {}
+    additional_alias2rMSlist = {}
+    all_genonly_alias2rMSlist = {}
+    for resdict, key in [(all_all_alias2rMSlist, "ALL-ALL"), \
+                         (all_genonly_alias2rMSlist, "ALL-GENONLY"), \
+                         (additional_alias2rMSlist, "ADDITIONAL")]:
+        for d_id, rMSobj in id2rMSobj.items():
+            for alias, val in rMSobj[key].items():
+                if alias not in resdict:
+                    resdict[alias] = []
+                resdict[alias].append(val)
+    
+        # Plotting
+        resdict_omb = {k:v for k,v in resdict.items() if ('semu' not in k or 'omb' in k)}
+        resdict_non_omb = {k:v for k,v in resdict.items() if ('semu' not in k or 'omb' not in k)}
+        for omb, data_dict in [("", resdict_non_omb), ("-omb", resdict_omb)]:
+            boxplotfile = os.path.join(outdir, key+"-boxplot"+omb)
+            linesplotfile = os.path.join(outdir, key+"-lineplot"+omb)
+            plotBoxes(data_dict, sorted(list(data_dict)), boxplotfile, ['white']*20, ylabel="Relevant Mutation Score", yticks_range=range(0,101,10), fontsize=26, title=None)
+            plotTrend(data_dict, linesplotfile, xlabel="Commit", ylabel="Relevant Mutation Score", yticks_range=range(0,101,10), order=sorted(list(data_dict))) 
 #~ def main()
 
 if __name__ == "__main__":

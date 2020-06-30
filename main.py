@@ -450,9 +450,10 @@ def summarize_data(outdir, summarized_data_dir, mutant_exec_res, \
         if talias.startswith("custom_devtests"):
             devtest_rel |= set(rellist)
             
-    rMS = {"ALL": {}, "ADDITIONAL": {}}
+    rMS = {"ALL-GENONLY": {}, "ALL-ALL": {}, "ADDITIONAL": {}}
     for talias, rellist in tool2relmuts.items():
-        rMS["ALL"][talias] = len(rellist) * 100.0 / len(all_rel_muts)
+        rMS["ALL-ALL"][talias] = len(set(rellist) | devtest_rel) * 100.0 / len(all_rel_muts)
+        rMS["ALL-GENONLY"][talias] = len(rellist) * 100.0 / len(all_rel_muts)
         rMS["ADDITIONAL"][talias] = len(set(rellist) - devtest_rel) * 100.0 / len(all_rel_muts - devtest_rel)
     common_fs.dumpJSON(rMS, rMS_file, pretty=True)
 #~ def summarize_data()

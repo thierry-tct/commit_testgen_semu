@@ -181,14 +181,13 @@ def main():
                     assert shadow_key is None
                     shadow_key = k
             rank = list(range(len(data_dict[shadow_key])))
-            print(omb, key, [max([data_dict[k][x] - data_dict[shadow_key][x] for k in set(data_dict) - {shadow_key}]) for x in rank]) #DBG
             rank.sort(key=lambda x: max([data_dict[k][x] - data_dict[shadow_key][x] for k in set(data_dict) - {shadow_key}]))
-            print(rank)
             for alias, arr in data_dict.items():
                 trend_data[alias] = {}
                 for pos, val in enumerate(arr):
                     trend_data[alias][rank[pos] + 1] = val
             plotTrend(trend_data, linesplotfile, xlabel="Commit", ylabel="Relevant Mutation Score", yticks_range=range(0,101,10), order=sorted(list(data_dict))) 
+            print(omb, key, trend_data)
     
     print("# DONE!")
 #~ def main()

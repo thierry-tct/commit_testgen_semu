@@ -19,6 +19,7 @@ error_exit()
 
 mountfold=$(readlink -f $1)
 id=$2
+only_gentests="--only_gentests"
 CPU=1
 
 ####
@@ -39,7 +40,13 @@ cd /home/klee-semu/klee_build \
 	&& sudo cp /tmp/klee-semu/lib/Mutation/*.{cpp,h} ../klee_src/lib/Mutation \
 	&& sudo rm -rf /tmp/klee-semu \
 	&& sudo make -j2
-[ $? -ne 0 ] && { echo "ERROR: Semu update failed!"; exit 1; }
+ogt=''
+if [ $? -eq 1 ]; then
+    ogt=$1
+else
+    [ $? -ne 0 ] && { echo "ERROR: Semu update failed!"; exit 1; }
+fi
+
 cd $curdir
 
 # Actual execution
@@ -51,7 +58,7 @@ TOPDIR=$(dirname $(readlink -f $0))
 conf_py=$TOPDIR/ctrl/conf.py
 runner=/work_scripts/main.py
 outdir=/work_data/$(basename $TOPDIR)
-python $runner $outdir $conf_py 
+python $runner $outdir $conf_py $ogt
 exit $?
 ' > $in_docker_script
 
@@ -67,7 +74,7 @@ sudo docker run -it --rm --cap-add=SYS_PTRACE --security-opt seccomp=unconfined 
                                         --mount type=bind,src=$TOPDIR,dst=/work_scripts \
 					--mount type=bind,src=$(readlink -f $TOPDIR/../DATA),dst=/work_data \
                                         --user 1000:1000 --privileged \
-									    --cpus=${CPU} maweimarvin/cm bash -c "cd /work/executions/workspace/$id && bash ./${tmpcmd}"
+									    --cpus=${CPU} maweimarvin/cm bash -c "cd /work/executions/workspace/$id && bash ./${tmpcmd} $only_gentests"
 
 # Copy info about changed lines
 #test -f $workspace_dir/res/klee_changed_src.summary \

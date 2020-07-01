@@ -65,6 +65,8 @@ def main():
     parser.add_argument('original_conf', help="config of the project")
     parser.add_argument('--cleanstart', action="store_true", \
                                                 help="delete out and restart")
+    parser.add_argument('--only_gentests', action="store_true", \
+                              help="only generate tests, no mutant execution")
 
     args = parser.parse_args()
     outdir = os.path.abspath(args.outdir)
@@ -96,6 +98,11 @@ def main():
         MUTANT_EXECUTION: False,
         DATA_SUMMARIZATION: False,
     }
+    
+    if args.only_gentests:
+        cp_data[MUTANT_EXECUTION_PREPA] = true
+        cp_data[MUTANT_EXECUTION] = true
+        cp_data[DATA_SUMMARIZATION] = true
 
     if os.path.isfile (checkpoint_file):
         cp_data = common_fs.loadJSON(checkpoint_file)

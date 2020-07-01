@@ -153,6 +153,8 @@ def main():
     if not os.path.isdir(outdir):
         os.mkdir(outdir)
         
+    lp_pos_to_id = {}
+    
     # For each category, get id to rMS
     all_all_alias2rMSlist = {}
     additional_alias2rMSlist = {}
@@ -160,7 +162,9 @@ def main():
     for resdict, key in [(all_all_alias2rMSlist, "ALL-ALL"), \
                          (all_genonly_alias2rMSlist, "ALL-GENONLY"), \
                          (additional_alias2rMSlist, "ADDITIONAL")]:
-        for d_id, rMSobj in id2rMSobj.items():
+        id_list = []
+        for pos, d_id, rMSobj in enumerate(id2rMSobj.items()):
+            id_list.append(d_id)
             for alias, val in rMSobj[key].items():
                 if alias not in resdict:
                     resdict[alias] = []
@@ -172,8 +176,8 @@ def main():
         for omb, data_dict in [("", resdict_non_omb), ("-omb", resdict_omb)]:
             boxplotfile = os.path.join(outdir, key+"-boxplot"+omb)
             linesplotfile = os.path.join(outdir, key+"-lineplot"+omb)
-            plotBoxes(data_dict, sorted(list(data_dict)), boxplotfile, ['white']*20, ylabel="Relevant Mutation Score", yticks_range=range(0,101,10), fontsize=26, title=None)
-            
+            medvals = plotBoxes(data_dict, sorted(list(data_dict)), boxplotfile, ['white']*20, ylabel="Relevant Mutation Score", yticks_range=range(0,101,10), fontsize=26, title=None)
+            dumpJson (medvals, boxplotfile+"-medians.json")
             trend_data = {}
             shadow_key = None
             for k in data_dict:
@@ -183,12 +187,18 @@ def main():
             rank = list(range(len(data_dict[shadow_key])))
             rank.sort(key=lambda x: max([data_dict[k][x] - data_dict[shadow_key][x] for k in set(data_dict) - {shadow_key}]))
             rank = {pos: newpos for newpos, pos in enumerate(rank)}
+            if key not in lp_pos_to_id:
+                lp_pos_to_id[key] = {}
+            if omb not in lp_pos_to_id[key]:
+                lp_pos_to_id[key][omb] = {}
+            for oldpos, newpos in rank.items():
+                lp_pos_to_id[key][omb][newpos] = id_list[oldpos]
             for alias, arr in data_dict.items():
                 trend_data[alias] = {}
                 for pos, val in enumerate(arr):
                     trend_data[alias][rank[pos] + 1] = val
             plotTrend(trend_data, linesplotfile, xlabel="Commit", ylabel="Relevant Mutation Score", yticks_range=range(0,101,10), order=sorted(list(data_dict))) 
-    
+            dumpJson (lp_pos_to_id[key][omb], linesplotfile+"-pos_to_id.json")
     print("# DONE!")
 #~ def main()
 

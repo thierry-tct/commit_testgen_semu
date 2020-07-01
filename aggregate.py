@@ -112,7 +112,7 @@ def plotTrend(name_to_data, image_file, xlabel, ylabel, yticks_range=np.arange(0
     fontsize = 26
     maxlenx = max([len(plotobj[t]['x']) for t in order])
     for ti,tech in enumerate(order):
-        plt.plot(plotobj[tech]['x'], plotobj[tech]['y'], color=colors[ti], linestyle=linestyles[ti], linewidth=linewidths[ti], marker=markers[ti], label=tech, alpha=0.8)
+        plt.plot(plotobj[tech]['x'], plotobj[tech]['y'], color=colors[ti], linestyle=linestyles[ti], linewidth=linewidths[ti], marker=markers[ti], markersize=3.5, label=tech, alpha=0.8)
     plt.ylabel(ylabel, fontsize=fontsize)
     plt.xlabel(xlabel, fontsize=fontsize)
     step = 1 #int(min(maxx, 10))
@@ -173,11 +173,19 @@ def main():
             boxplotfile = os.path.join(outdir, key+"-boxplot"+omb)
             linesplotfile = os.path.join(outdir, key+"-lineplot"+omb)
             plotBoxes(data_dict, sorted(list(data_dict)), boxplotfile, ['white']*20, ylabel="Relevant Mutation Score", yticks_range=range(0,101,10), fontsize=26, title=None)
+            
             trend_data = {}
+            shadow_key = None
+            for k in data_dict:
+                if k.starswih('shadow'):
+                    assert shadow_key is None
+                    shadow_key = k
+            rank = list(range(len(data_dict[shadow_key])))
+            rank.sort(key=lambda x: max([data_dict[k][x] - data_dict[shadow_key][x] for k in set(data_dict) - {shadow_key}]))
             for alias, arr in data_dict.items():
                 trend_data[alias] = {}
                 for pos, val in enumerate(arr):
-                    trend_data[alias][pos + 1] = val
+                    trend_data[alias][rank[pos] + 1] = val
             plotTrend(trend_data, linesplotfile, xlabel="Commit", ylabel="Relevant Mutation Score", yticks_range=range(0,101,10), order=sorted(list(data_dict))) 
 #~ def main()
 

@@ -177,7 +177,7 @@ def main():
             trend_data = {}
             shadow_key = None
             for k in data_dict:
-                if k.starswih('shadow'):
+                if k.startswith('shadow'):
                     assert shadow_key is None
                     shadow_key = k
             rank = list(range(len(data_dict[shadow_key])))
@@ -187,6 +187,8 @@ def main():
                 for pos, val in enumerate(arr):
                     trend_data[alias][rank[pos] + 1] = val
             plotTrend(trend_data, linesplotfile, xlabel="Commit", ylabel="Relevant Mutation Score", yticks_range=range(0,101,10), order=sorted(list(data_dict))) 
+    
+    print("# DONE!")
 #~ def main()
 
 if __name__ == "__main__":

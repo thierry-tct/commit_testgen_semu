@@ -181,7 +181,7 @@ def main():
                     assert shadow_key is None
                     shadow_key = k
             rank = list(range(len(data_dict[shadow_key])))
-            print([max([data_dict[k][x] - data_dict[shadow_key][x] for k in set(data_dict) - {shadow_key}]) for x in rank]) #DBG
+            print(omb, key, [max([data_dict[k][x] - data_dict[shadow_key][x] for k in set(data_dict) - {shadow_key}]) for x in rank]) #DBG
             rank.sort(key=lambda x: max([data_dict[k][x] - data_dict[shadow_key][x] for k in set(data_dict) - {shadow_key}]))
             for alias, arr in data_dict.items():
                 trend_data[alias] = {}

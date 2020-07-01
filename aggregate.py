@@ -163,7 +163,7 @@ def main():
                          (all_genonly_alias2rMSlist, "ALL-GENONLY"), \
                          (additional_alias2rMSlist, "ADDITIONAL")]:
         id_list = []
-        for pos, d_id, rMSobj in enumerate(id2rMSobj.items()):
+        for d_id, rMSobj in id2rMSobj.items():
             id_list.append(d_id)
             for alias, val in rMSobj[key].items():
                 if alias not in resdict:

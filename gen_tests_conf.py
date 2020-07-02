@@ -130,12 +130,12 @@ else:
                             ]
     nsample = 6
     dist_start = 0
-    dist_step = 4
-    for PL in (-2, -1):
+    for PL, dist_step in [(-2, 4), (-1, 2)]:
         for distance in range(dist_start, (nsample * dist_step) + dist_start, dist_step):
+            # common
             custom_pta = [('-semu-precondition-length', str(PL)),]
-            custom_pta.append(('-semu-mutant-max-fork', str(distance)))
             custom_pta.append(('-semu-use-only-multi-branching-for-depth',))
+            custom_pta.append(('-semu-mutant-max-fork', str(distance)))
             semu_test_cmp = TestcaseToolsConfig(tooltype=TestToolType.USE_CODE_AND_TESTS, \
                                 toolname='semu', \
                                 config_id='cmp'+'-PL'+str(PL)+'-CW'+str(distance), \
@@ -150,3 +150,7 @@ else:
     
     
 TESTCASE_TOOLS_CONFIGS = semu_cmp_list + [shadow_for_cmp] + [dev_test]
+
+# Remove added corebench test
+if len(__REMOVE_ADDED_DEVTESTS__) > 0:
+    DEVELOPER_TESTS_LIST = [dt in DEVELOPER_TESTS_LIST if dt not in __REMOVE_ADDED_DEVTESTS__]

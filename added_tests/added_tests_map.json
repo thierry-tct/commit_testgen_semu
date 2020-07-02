@@ -1,0 +1,43 @@
+{
+  "ar-2": [
+    "tests/seq/regression.sh"
+  ], 
+  "ar-5": [
+    "tests/misc/0_cut-regression.sh", 
+    "tests/misc/1_cut-regression.sh"
+  ], 
+  "cr-13": [
+    "tests/ls/regression.sh" 
+  ], 
+  "cr-14": [
+    "tests/ls/regression.sh", 
+    "tests/manuallyAddedMFI/regression2", 
+    "tests/manuallyAddedMFI/regression3", 
+    "tests/manuallyAddedMFI/regression4"
+  ], 
+  "cr-3": [
+    "tests/misc/cut-huge-range.s3.sh", 
+    "tests/misc/cut-manuallyAddedMFI/regression3.sh", 
+    "tests/misc/cut-manuallyAddedMFI/regression4.sh"
+  ], 
+  "cr-4": [
+    "tests/tail-2/regression.sh", 
+    "tests/tail-2/regression5.sh"
+  ], 
+  "cr-5": [
+    "tests/tail-2/regression-5.sh", 
+    "tests/tail-2/regression-16.sh"
+  ], 
+  "cr-7": [
+    "tests/misc/seq-manuallyAddedMFI/regression.sh", 
+    "tests/misc/seq-manuallyAddedMFI/regression2.sh", 
+    "tests/misc/seq-manuallyAddedMFI/regression3.sh", 
+    "tests/misc/seq-manuallyAddedMFI/regression4.sh"
+  ], 
+  "cr-8": [
+    "tests/misc/seq-manuallyAddedMFI/regression.sh", 
+    "tests/misc/seq-manuallyAddedMFI/regression2.pl", 
+    "tests/misc/seq-manuallyAddedMFI/regression3.pl", 
+    "tests/misc/seq-manuallyAddedMFI/regression4.pl"
+  ]
+}

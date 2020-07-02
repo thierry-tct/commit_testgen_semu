@@ -153,4 +153,4 @@ TESTCASE_TOOLS_CONFIGS = semu_cmp_list + [shadow_for_cmp] + [dev_test]
 
 # Remove added corebench test
 if len(__REMOVE_ADDED_DEVTESTS__) > 0:
-    DEVELOPER_TESTS_LIST = [dt in DEVELOPER_TESTS_LIST if dt not in __REMOVE_ADDED_DEVTESTS__]
+    DEVELOPER_TESTS_LIST = [dt for dt in DEVELOPER_TESTS_LIST if dt not in __REMOVE_ADDED_DEVTESTS__]

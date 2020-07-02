@@ -33,6 +33,10 @@ echo '
 #! /bin/bash
 set -u
 
+ogt=''
+if [ $# -eq 1 ]; then
+    ogt=$1
+
 # Temporary
 curdir=`pwd`
 cd /home/klee-semu/klee_build \
@@ -40,12 +44,9 @@ cd /home/klee-semu/klee_build \
 	&& sudo cp /tmp/klee-semu/lib/Mutation/*.{cpp,h} ../klee_src/lib/Mutation \
 	&& sudo rm -rf /tmp/klee-semu \
 	&& sudo make -j2
-ogt=''
-if [ $? -eq 1 ]; then
-    ogt=$1
-else
-    [ $? -ne 0 ] && { echo "ERROR: Semu update failed!"; exit 1; }
-fi
+[ $? -ne 0 ] && { echo "ERROR: Semu update failed!"; exit 1; }
+
+
 
 cd $curdir
 

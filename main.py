@@ -51,6 +51,7 @@ MUTERIA_OUTPUT_KEY = "__MUTERIA_OUTPUT__"
 AVOID_META_TESTS_LIST_FILE_KEY = "__AVOID_META_TESTS_LIST_FILE__"
 AVOID_META_MUTANTS_LIST_FILE_KEY = "__AVOID_META_MUTANTS_LIST_FILE__"
 FIRST_TIME_MUTANT_EXECUTION_KEY = '__FIRST_TIME_MUTANT_EXECUTION__'
+REMOVE_ADDED_DEVTESTS = '__REMOVE_ADDED_DEVTESTS__'
 
 
 SEED_COLLECTION='seed_collection'.upper()
@@ -76,6 +77,9 @@ def main():
             shutil.rmtree(outdir)
     if not os.path.isdir(outdir):
         os.mkdir(outdir)
+        
+    # XXX
+    do_remove_added_devtests = args.only_gentests
 
     seeds_dir = os.path.join(outdir, "ktests_seeds")
     checkpoint_file = os.path.join(outdir, 'checkpoint.json')
@@ -90,6 +94,18 @@ def main():
     avoid_meta_tests_list_file = os.path.join(outdir, mut_ex_prepa_data_dir, \
                                             "avoid_meta_tests_list_file.txt")
 
+    # load added dev tests
+    added_devtest_map_file = os.path.join(os.path.dirname(__file__), 'added_tests', 'added_tests_map.json')
+    added_devtest_map = common_fs.loadJSON(added_devtest_map_file)
+    cur_id = os.path.basename(outdir)
+    
+    if do_remove_added_devtests:
+        if cur_id not in added_devtest_map:
+            error_exit ("do_remove_added_devtests is true but id not in map")
+        toskip_added_devtest = added_devtest_map[cur_id]
+    else:
+        toskip_added_devtest = []
+    
     # check checkpoint and load if necessary
     cp_data = {
         SEED_COLLECTION: False,
@@ -109,14 +125,14 @@ def main():
 
     if not cp_data[SEED_COLLECTION]:
         print ("#(DBG): Executing {} ...".format(SEED_COLLECTION))
-        collect_seeds (outdir, seeds_dir, muteria_output, original_conf)
+        collect_seeds (outdir, seeds_dir, muteria_output, original_conf, toskip_added_devtest)
         cp_data[SEED_COLLECTION] = True
         common_fs.dumpJSON(cp_data, checkpoint_file, pretty=True)
 
     if not cp_data[TEST_GENERATION]:
         print ("#(DBG): Executing {} ...".format(TEST_GENERATION))
         generate_tests (outdir, seeds_dir, muteria_output, original_conf, \
-                                                  tg_conf, args.only_gentests)
+                                           tg_conf, args.only_gentests, toskip_added_devtest)
         cp_data[TEST_GENERATION] = True
         common_fs.dumpJSON(cp_data, checkpoint_file, pretty=True)
 
@@ -145,7 +161,7 @@ def main():
     print("\n# DONE!\n")
 #~ def main()
 
-def collect_seeds(outdir, seeds_out, muteria_output, original_conf, compress_dest=True):
+def collect_seeds(outdir, seeds_out, muteria_output, original_conf, toskip_added_devtest, compress_dest=True):
     # set the temporary conf
     tmp_conf = os.path.join(outdir, '_seed_conf.py')
     tmp_conf_template = os.path.join(os.path.dirname(__file__), \
@@ -159,7 +175,8 @@ def collect_seeds(outdir, seeds_out, muteria_output, original_conf, compress_des
                                 .replace(ORIGINAL_CONF_MODULE_KEY, o_c_module)\
                                 .replace(MUTERIA_OUTPUT_KEY, muteria_output)\
                                 .replace('__SYM_ARGS_STORE_FILE__', \
-                                                    prev_sym_args_store_file))
+                                                    prev_sym_args_store_file)\
+                                .replace(REMOVE_ADDED_DEVTESTS, str(toskip_added_devtest)))
 
     # run muteria
     if os.path.isdir(muteria_output):
@@ -192,7 +209,7 @@ def collect_seeds(outdir, seeds_out, muteria_output, original_conf, compress_des
     shutil.rmtree(muteria_output)
 #~ def collect_seeds()
 
-def generate_tests(outdir, seeds_dir, muteria_output, original_conf, tg_conf, crashcontinue):
+def generate_tests(outdir, seeds_dir, muteria_output, original_conf, tg_conf, crashcontinue, toskip_added_devtest):
     # set the temporary conf
     tmp_conf_template = os.path.join(os.path.dirname(__file__), \
                                                         'gen_tests_conf.py')
@@ -203,7 +220,8 @@ def generate_tests(outdir, seeds_dir, muteria_output, original_conf, tg_conf, cr
             g.write(f.read().replace(ORIGINAL_CONF_DIR_KEY, o_c_dir)\
                                 .replace(ORIGINAL_CONF_MODULE_KEY, o_c_module)\
                                 .replace(MUTERIA_OUTPUT_KEY, muteria_output)\
-                                            .replace(SEED_DIR_KEY, seeds_dir))
+                                            .replace(SEED_DIR_KEY, seeds_dir)\
+                                .replace(REMOVE_ADDED_DEVTESTS, str(toskip_added_devtest)))
 
     # prepare seeds
     tar_seeds_dir = seeds_dir + '.tar.gz'

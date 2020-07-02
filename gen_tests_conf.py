@@ -131,7 +131,7 @@ else:
     nsample = 6
     dist_start = 0
     dist_step = 4
-    for PL in [(-2, -1)]:
+    for PL in (-2, -1):
         for distance in range(dist_start, (nsample * dist_step) + dist_start, dist_step):
             custom_pta = [('-semu-precondition-length', str(PL)),]
             custom_pta.append(('-semu-mutant-max-fork', str(distance)))

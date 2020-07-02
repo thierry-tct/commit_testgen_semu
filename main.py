@@ -100,9 +100,9 @@ def main():
     }
     
     if args.only_gentests:
-        cp_data[MUTANT_EXECUTION_PREPA] = true
-        cp_data[MUTANT_EXECUTION] = true
-        cp_data[DATA_SUMMARIZATION] = true
+        cp_data[MUTANT_EXECUTION_PREPA] = True
+        cp_data[MUTANT_EXECUTION] = True
+        cp_data[DATA_SUMMARIZATION] = True
 
     if os.path.isfile (checkpoint_file):
         cp_data = common_fs.loadJSON(checkpoint_file)

@@ -15,11 +15,16 @@ error_exit()
 # root
 # expensive
 
-[ $# = 2 ] || error_exit "expect 2 argument (id and number of cpu). passed $# agrs"
+only_gentests=""
+if [ $# = 3 ]; then
+    [ "$3" = "--only_gentests" ] || error_exit "3rd para must be --only_gentests"
+    only_gentests="--only_gentests"
+else
+    [ $# = 2 ] || error_exit "expect 2 argument (id and number of cpu). passed $# agrs"
+fi
 
 mountfold=$(readlink -f $1)
 id=$2
-only_gentests="--only_gentests"
 CPU=1
 
 ####
@@ -36,6 +41,8 @@ set -u
 ogt=''
 if [ $# -eq 1 ]; then
     ogt=$1
+    echo ">>>>> ogt is $ogt"
+fi
 
 # Temporary
 curdir=`pwd`

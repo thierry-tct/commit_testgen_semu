@@ -2,18 +2,46 @@
   "ar-2": [
     "tests/seq/regression.sh"
   ], 
+  "ar-4-1": [
+    "tests/cut/regression.sh"
+  ], 
   "ar-5": [
     "tests/misc/0_cut-regression.sh", 
     "tests/misc/1_cut-regression.sh"
   ], 
+  "cr-1": [
+    "tests/rm/regression.sh"
+  ], 
+  "cr-10": [
+    "tests/cp/regression.sh", 
+    "tests/cp/regression3.sh"
+  ], 
+  "cr-11": [
+    "tests/misc/cut-regression.sh"
+  ], 
+  "cr-12": [
+    "tests/cut/regression-12.sh", 
+    "tests/cut/regression-17.sh"
+  ], 
   "cr-13": [
-    "tests/ls/regression.sh" 
+    "tests/ls/regression.sh"
   ], 
   "cr-14": [
     "tests/ls/regression.sh", 
     "tests/manuallyAddedMFI/regression2", 
     "tests/manuallyAddedMFI/regression3", 
     "tests/manuallyAddedMFI/regression4"
+  ], 
+  "cr-15": [
+    "tests/du/manuallyAddedMFI/0_regression3", 
+    "tests/du/manuallyAddedMFI/1_regression3", 
+    "tests/du/manuallyAddedMFI/2_regression3", 
+    "tests/du/manuallyAddedMFI/0_regression4", 
+    "tests/du/manuallyAddedMFI/1_regression4", 
+    "tests/du/manuallyAddedMFI/regression5"
+  ], 
+  "cr-22": [
+    "tests/expr/regression.sh"
   ], 
   "cr-3": [
     "tests/misc/cut-huge-range.s3.sh", 

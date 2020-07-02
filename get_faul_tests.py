@@ -1,21 +1,17 @@
-#! /bin/bash
+id_with_many_bugs = {
+                        'cr-5': ['cr-5', 'cr-16'],
+                        'cr-12': ['cr-12', 'cr-17'],
+                    }
+                    
+def get_fault_tests (cm_corebench_scripts_dir, id, conf_py, outdir):
 
-# ./get_fault_tests.sh <id> <CPU count>
+#~ def get_fault_tests ()
 
-set -u
 
-error_exit()
-{
-    echo "ERROR: $1"
-    exit 1
-}
+# ==== TODO
 
-# id
-# cpu
-# root
-# expensive
 
-[ $# = 2 ] || error_exit "expect 2 argument (id and number of cpu). passed $# agrs"
+
 
 id=$1
 CPU=$2

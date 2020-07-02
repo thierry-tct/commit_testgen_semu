@@ -67,6 +67,8 @@ def main():
                                                 help="delete out and restart")
     parser.add_argument('--only_gentests', action="store_true", \
                               help="only generate tests, no mutant execution")
+    parser.add_argument('--crashcontinue', action="store_true", \
+                           help="continue the current task, assuming there was just a crash. Useful for test generation")
 
     args = parser.parse_args()
     outdir = os.path.abspath(args.outdir)
@@ -116,7 +118,7 @@ def main():
     if not cp_data[TEST_GENERATION]:
         print ("#(DBG): Executing {} ...".format(TEST_GENERATION))
         generate_tests (outdir, seeds_dir, muteria_output, original_conf, \
-                                                                    tg_conf)
+                                                           tg_conf, args.crashcontinue)
         cp_data[TEST_GENERATION] = True
         common_fs.dumpJSON(cp_data, checkpoint_file, pretty=True)
 
@@ -192,7 +194,7 @@ def collect_seeds(outdir, seeds_out, muteria_output, original_conf, compress_des
     shutil.rmtree(muteria_output)
 #~ def collect_seeds()
 
-def generate_tests(outdir, seeds_dir, muteria_output, original_conf, tg_conf):
+def generate_tests(outdir, seeds_dir, muteria_output, original_conf, tg_conf, crashcontinue):
     # set the temporary conf
     tmp_conf_template = os.path.join(os.path.dirname(__file__), \
                                                         'gen_tests_conf.py')
@@ -215,7 +217,7 @@ def generate_tests(outdir, seeds_dir, muteria_output, original_conf, tg_conf):
         common_fs.TarGz.decompressDir(tar_seeds_dir)
         
     # run muteria
-    if os.path.isdir(muteria_output):
+    if os.path.isdir(muteria_output) and not crashcontinue:
         shutil.rmtree(muteria_output)
     retcode = run_muteria_with_conf(tg_conf)
     

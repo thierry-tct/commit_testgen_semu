@@ -61,4 +61,4 @@ except NameError:
 
 # Remove added corebench test
 if len(__REMOVE_ADDED_DEVTESTS__) > 0:
-    DEVELOPER_TESTS_LIST = [dt in DEVELOPER_TESTS_LIST if dt not in __REMOVE_ADDED_DEVTESTS__]
+    DEVELOPER_TESTS_LIST = [dt for dt in DEVELOPER_TESTS_LIST if dt not in __REMOVE_ADDED_DEVTESTS__]

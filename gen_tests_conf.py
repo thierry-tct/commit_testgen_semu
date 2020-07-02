@@ -130,7 +130,7 @@ else:
                             ]
     nsample = 6
     dist_start = 0
-    for PL, dist_step in [(-2, 4), (-1, 2)]:
+    for PL, dist_step in [(-2, 4), (-1, 4)]:
         for distance in range(dist_start, (nsample * dist_step) + dist_start, dist_step):
             # common
             custom_pta = [('-semu-precondition-length', str(PL)),]

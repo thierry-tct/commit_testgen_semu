@@ -1,4 +1,9 @@
 import os
+def error_exit(err):
+	print ("error: "+err)
+	exit(1)
+#~ def error_exit()
+	
 id_with_many_bugs = {
                         'cr-5': ['cr-5', 'cr-16'],
                         'cr-12': ['cr-12', 'cr-17'],
@@ -8,11 +13,13 @@ def get_fault_tests (cm_corebench_scripts_dir, c_id, conf_py, outdir):
 	if not os.path.isdir(outdir):
 		os.mkdir(outdir)
 	
-	####
-	p_id=$(basename $TOPDIR)
-	exe_dir=/work/executions/cm_corebench_scripts/bug_fixing_exes/$p_id
-	exe_file=$(ls $exe_dir/old)
-
+	exe_dir=os.path.join(cm_corebench_scripts_dir, "bug_fixing_exes", c_id)
+	exe_file=os.listdir(os.path.join(exe_dir, "old"))
+	if len(exe_file) != 1:
+		error_exit ("not one file for old")
+	exe_file = exe_file[0]
+	
+######
 	fail_test_execution=$collect/fail_test_checking
 	test -d $fail_test_execution || mkdir $fail_test_execution
 

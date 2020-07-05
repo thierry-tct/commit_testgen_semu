@@ -19,14 +19,16 @@ def get_fault_tests (cm_corebench_scripts_dir, c_id, conf_py, outdir):
 		error_exit ("not one file for old")
 	exe_file = exe_file[0]
 	
-######
-	fail_test_execution=$collect/fail_test_checking
-	test -d $fail_test_execution || mkdir $fail_test_execution
+	fail_test_execution=os.path.join(outdir, "fail_test_checking")
+	if not os.path.isdir(fail_test_execution):
+		os.makedirs(fail_test_execution)
 
-	bug_finding_tests_list=$fail_test_execution/fault_reveling_tests.txt
+	bug_finding_tests_list = os.path.join(fail_test_execution, "fault_reveling_tests.txt")
 
 	# temporary
-	test_list_file=$TOPDIR/test_list.tmp
+	test_list_file = os.path.join(fail_test_execution, "test_list.tmp")
+	
+	################
 
 	cat $pass_fail_matrix | head -n1 | tr " " "\n" | sed 1d > $test_list_file || error_exit "failed to get testlist"
 

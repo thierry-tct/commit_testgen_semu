@@ -18,7 +18,7 @@ id_with_many_bugs = {
                     
 def get_commit_fault_tests (cm_corebench_scripts_dir, c_id, conf_py, in_res_data_dir, out_top_dir):
 	if c_id in id_with_many_bugs:
-		for used_c_id inid_with_many_bugs[c_id]:
+		for used_c_id in id_with_many_bugs[c_id]:
 			outdir = os.path.join(out_top_dir, used_c_id)
 			_get_fault_tests (cm_corebench_scripts_dir, used_c_id, conf_py, in_res_data_dir, outdir)
 	else:

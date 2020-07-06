@@ -1,5 +1,6 @@
 import os
 import muteria.common.matrices as common_matrices
+from muteria.drivers import DriversUtils
 
 def error_exit(err):
 	print ("error: "+err)
@@ -11,7 +12,17 @@ id_with_many_bugs = {
                         'cr-12': ['cr-12', 'cr-17'],
                     }
                     
-def get_fault_tests (cm_corebench_scripts_dir, c_id, conf_py, in_res_data_dir, outdir):
+def get_commit_fault_tests (cm_corebench_scripts_dir, c_id, conf_py, in_res_data_dir, out_top_dir):
+	if c_id in id_with_many_bugs:
+		for used_c_id inid_with_many_bugs[c_id]:
+			outdir = os.path.join(out_top_dir, used_c_id)
+			_get_fault_tests (cm_corebench_scripts_dir, used_c_id, conf_py, in_res_data_dir, outdir)
+	else:
+		outdir = os.path.join(out_top_dir, c_id)
+		_get_fault_tests (cm_corebench_scripts_dir, c_id, conf_py, in_res_data_dir, outdir)
+#~ def get_commit_fault_tests ()
+	
+def _get_fault_tests (cm_corebench_scripts_dir, c_id, conf_py, in_res_data_dir, outdir):
 	if not os.path.isdir(outdir):
 		os.mkdir(outdir)
 	
@@ -37,38 +48,39 @@ def get_fault_tests (cm_corebench_scripts_dir, c_id, conf_py, in_res_data_dir, o
 		for test in pf_mat.get_nonkey_colname_list():
 			f.write(test+"\n")
 
-	custom_exe = os.path.join(exe_dir, "old", exe_file)
-	
-	#########
-	echo "tests
-	$fail_test_execution/old
-	{\"src/$(basename $custom_exe)\": \"$custom_exe\"}
-	$test_list_file" | muteria --config $conf_py --lang c customexec || error_exit "run failed"
+	print("# info: running old ...")
+	version = "old"
+	custom_exe = os.path.join(exe_dir, version, exe_file)
+	DriversUtils.execute_and_get_retcode_out_err("muteria", ["--config", conf_py, "--lang", "c", "customexec"], 
+						     stdin="{}\n{}\n{}\n{}\n".format("tests", 
+										   os.path.join(fail_test_execution, version),
+										  '{"src/'+exe_file+'": "'+custom_exe+'"}',
+										   test_list_file)
+						     )
+	print("# info: running new ...")
+	version = "new"
+	custom_exe = os.path.join(exe_dir, version, exe_file)
+	DriversUtils.execute_and_get_retcode_out_err("muteria", ["--config", conf_py, "--lang", "c", "customexec"], 
+						     stdin="{}\n{}\n{}\n{}\n".format("tests", 
+										   os.path.join(fail_test_execution, version),
+										  '{"src/'+exe_file+'": "'+custom_exe+'"}',
+										   test_list_file)
+						     )
 
-	custom_exe=$exe_dir/new/$exe_file
-	echo "tests
-	$fail_test_execution/new
-	{\"src/$(basename $custom_exe)\": \"$custom_exe\"}
-	$test_list_file" | muteria --config $conf_py --lang c customexec || error_exit "run failed"
-
-	rm -f $test_list_file
+	os.remove(test_list_file)
 	 
-	echo "import muteria.common.matrices as common_matrices" > $test_list_file
-	echo "_, old_o = list(common_matrices.OutputLogData(\"$fail_test_execution/old/program_output.json\").get_zip_objective_and_data())[0]" >> $test_list_file
-	echo "_, new_o = list(common_matrices.OutputLogData(\"$fail_test_execution/new/program_output.json\").get_zip_objective_and_data())[0]" >> $test_list_file
-	echo "assert len(old_o) == len(new_o)" >> $test_list_file
-	echo "diff_tests = []" >> $test_list_file
-	echo "for tc in old_o:" >> $test_list_file
-	echo "    eq = common_matrices.OutputLogData.outlogdata_equiv(old_o[tc], new_o[tc])" >> $test_list_file
-	echo "    assert eq is not None, \"PB\"" >> $test_list_file
-	echo "    if not eq:" >> $test_list_file
-	echo "        diff_tests.append(tc)" >> $test_list_file
-	echo "with open(\"$bug_finding_tests_list\", \"w\") as f:" >> $test_list_file
-	echo "    for tc in diff_tests:" >> $test_list_file
-	echo "        f.write(tc+\"\n\")" >> $test_list_file
-	echo "print(\"# list printed\")" >> $test_list_file
-
-	python $test_list_file || error_exit "python failed"
-
-	rm -f $test_list_file
-#~ def get_fault_tests ()
+	import muteria.common.matrices as common_matrices
+	_, old_o = list(common_matrices.OutputLogData(os.path.join(fail_test_execution, 'old', 'program_output.json').get_zip_objective_and_data())[0]
+	_, new_o = list(common_matrices.OutputLogData(os.path.join(fail_test_execution, 'new', 'program_output.json').get_zip_objective_and_data())[0]
+	assert len(old_o) == len(new_o)
+	diff_tests = []
+	for tc in old_o:
+	    eq = common_matrices.OutputLogData.outlogdata_equiv(old_o[tc], new_o[tc])
+	    assert eq is not None, "PB"
+	    if not eq:
+	        diff_tests.append(tc)
+	with open(bug_finding_tests_list, "w") as f:
+	    for tc in diff_tests:
+	        f.write(tc+"\n")
+	print("# list printed")
+#~ def _get_fault_tests ()

@@ -21,6 +21,7 @@ from muteria.drivers.testgeneration.testcase_formats.ktest.ktest import \
 #import muteria.controller.checkpoint_tasks as cp_tasks
 
 import load
+import get_fault_tests
 
 def error_exit(msg):
     print("Error: {}!".format(msg))
@@ -118,7 +119,7 @@ def main():
     if args.only_gentests:
         cp_data[MUTANT_EXECUTION_PREPA] = True
         cp_data[MUTANT_EXECUTION] = True
-        cp_data[DATA_SUMMARIZATION] = True
+        #cp_data[DATA_SUMMARIZATION] = True
 
     if os.path.isfile (checkpoint_file):
         cp_data = common_fs.loadJSON(checkpoint_file)
@@ -153,7 +154,13 @@ def main():
 
     if not cp_data[DATA_SUMMARIZATION]:
         print ("#(DBG): Executing {} ...".format(DATA_SUMMARIZATION))
-        summarize_data(outdir, summarized_data_dir, mutant_exec_res, \
+        if args.only_gentests:
+            cm_corebench_scripts_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(original_conf)))), "cm_corebench_scripts")
+            c_id = os.path.basename(outdir)
+            fault_analysis (cm_corebench_scripts_dir, c_id, tg_conf, muteria_output, \
+                                                                        summarized_data_dir)
+        else:
+            summarize_data(outdir, summarized_data_dir, mutant_exec_res, \
                                                         mut_ex_prepa_data_dir)
         cp_data[DATA_SUMMARIZATION] = True
         common_fs.dumpJSON(cp_data, checkpoint_file, pretty=True)

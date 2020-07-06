@@ -157,8 +157,8 @@ def main():
         if args.only_gentests:
             cm_corebench_scripts_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(original_conf)))), "cm_corebench_scripts")
             c_id = os.path.basename(outdir)
-            fault_analysis (cm_corebench_scripts_dir, c_id, tg_conf, muteria_output, \
-                                                                        summarized_data_dir)
+            get_fault_tests.fault_analysis (cm_corebench_scripts_dir, c_id, tg_conf, \
+                                                    muteria_output, summarized_data_dir)
         else:
             summarize_data(outdir, summarized_data_dir, mutant_exec_res, \
                                                         mut_ex_prepa_data_dir)

@@ -1,4 +1,6 @@
 import os
+import muteria.common.matrices as common_matrices
+
 def error_exit(err):
 	print ("error: "+err)
 	exit(1)
@@ -9,7 +11,7 @@ id_with_many_bugs = {
                         'cr-12': ['cr-12', 'cr-17'],
                     }
                     
-def get_fault_tests (cm_corebench_scripts_dir, c_id, conf_py, outdir):
+def get_fault_tests (cm_corebench_scripts_dir, c_id, conf_py, in_res_data_dir, outdir):
 	if not os.path.isdir(outdir):
 		os.mkdir(outdir)
 	
@@ -28,11 +30,16 @@ def get_fault_tests (cm_corebench_scripts_dir, c_id, conf_py, outdir):
 	# temporary
 	test_list_file = os.path.join(fail_test_execution, "test_list.tmp")
 	
-	################
+	pass_fail_matrix = os.path.join(in_res_data_dir, "matrices", "PASSFAIL.csv")
 
-	cat $pass_fail_matrix | head -n1 | tr " " "\n" | sed 1d > $test_list_file || error_exit "failed to get testlist"
+	pf_mat = common_matrices.ExecutionMatrix(filename=pass_fail_matrix)
+	with open(test_list_file, "w") as f:
+		for test in pf_mat.get_nonkey_colname_list():
+			f.write(test+"\n")
 
-	custom_exe=$exe_dir/old/$exe_file
+	custom_exe = os.path.join(exe_dir, "old", exe_file)
+	
+	#########
 	echo "tests
 	$fail_test_execution/old
 	{\"src/$(basename $custom_exe)\": \"$custom_exe\"}

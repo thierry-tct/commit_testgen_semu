@@ -55,21 +55,20 @@ def _get_fault_tests (cm_corebench_scripts_dir, c_id, conf_py, in_res_data_dir, 
 	print("# info: running old ...")
 	version = "old"
 	custom_exe = os.path.join(exe_dir, version, exe_file)
-	DriversUtils.execute_and_get_retcode_out_err("muteria", ["--config", conf_py, "--lang", "c", "customexec"], 
-						     stdin="{}\n{}\n{}\n{}\n".format("tests", 
-										   os.path.join(fail_test_execution, version),
-										  '{"src/'+exe_file+'": "'+custom_exe+'"}',
-										   test_list_file)
-						     )
+    stdin = "{}\n{}\n{}\n{}\n".format("tests", os.path.join(fail_test_execution, version),
+									   '{"src/'+exe_file+'": "'+custom_exe+'"}',
+										test_list_file)
+	if os.system(" ".join(["printf", "'"+stdin+"'", "|", "muteria", "--config", conf_py, "--lang", "c", "customexec"])) != 0:
+        assert False, "old failed"
+        
 	print("# info: running new ...")
 	version = "new"
 	custom_exe = os.path.join(exe_dir, version, exe_file)
-	DriversUtils.execute_and_get_retcode_out_err("muteria", ["--config", conf_py, "--lang", "c", "customexec"], 
-						     stdin="{}\n{}\n{}\n{}\n".format("tests", 
-										   os.path.join(fail_test_execution, version),
-										  '{"src/'+exe_file+'": "'+custom_exe+'"}',
-										   test_list_file)
-						     )
+    stdin = "{}\n{}\n{}\n{}\n".format("tests", os.path.join(fail_test_execution, version),
+									   '{"src/'+exe_file+'": "'+custom_exe+'"}',
+										test_list_file)
+	if os.system(" ".join(["printf", "'"+stdin+"'", "|", "muteria", "--config", conf_py, "--lang", "c", "customexec"])) != 0:
+        assert False, "new failed"
 
 	os.remove(test_list_file)
 	 

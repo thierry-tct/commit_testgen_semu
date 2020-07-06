@@ -73,9 +73,8 @@ def _get_fault_tests (cm_corebench_scripts_dir, c_id, conf_py, in_res_data_dir, 
 
 	os.remove(test_list_file)
 	 
-	import muteria.common.matrices as common_matrices
-	_, old_o = list(common_matrices.OutputLogData(os.path.join(fail_test_execution, 'old', 'program_output.json').get_zip_objective_and_data())[0]
-	_, new_o = list(common_matrices.OutputLogData(os.path.join(fail_test_execution, 'new', 'program_output.json').get_zip_objective_and_data())[0]
+	_, old_o = list(common_matrices.OutputLogData(os.path.join(fail_test_execution, 'old', 'program_output.json')).get_zip_objective_and_data())[0]
+	_, new_o = list(common_matrices.OutputLogData(os.path.join(fail_test_execution, 'new', 'program_output.json')).get_zip_objective_and_data())[0]
 	assert len(old_o) == len(new_o)
 	diff_tests = []
 	for tc in old_o:

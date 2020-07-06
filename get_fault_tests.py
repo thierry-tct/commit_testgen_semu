@@ -89,15 +89,15 @@ def _get_fault_tests (cm_corebench_scripts_dir, c_id, conf_py, in_res_data_dir, 
 #~ def _get_fault_tests ()
 			
 def fault_analysis (cm_corebench_scripts_dir, c_id, conf_py, in_muteria_outdir, out_top_dir):
-	if not os.path.isdir(out_top_dir):
-		os.mkdir(out_top_dir)
-                    
+    if not os.path.isdir(out_top_dir):
+        os.mkdir(out_top_dir)
+		
     in_res_data_dir = os.path.join(in_muteria_outdir, 'latest', 'RESULTS_DATA')
     testtools_workdir = os.path.join(in_muteria_outdir, 'latest', 'testcases_workdir')
     pass_fail_matrix = os.path.join(in_res_data_dir, "matrices", "PASSFAIL.csv")
 
-	pf_mat = common_matrices.ExecutionMatrix(filename=pass_fail_matrix)
-	test_list = list(pf_mat.get_nonkey_colname_list())
+    pf_mat = common_matrices.ExecutionMatrix(filename=pass_fail_matrix)
+    test_list = list(pf_mat.get_nonkey_colname_list())
     #semu_tool_dirs = [d for d in os.listdir(testtools_workdir) if d.startswith('semu_cmp-')]
     
     # get fault tests

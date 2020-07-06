@@ -1,6 +1,10 @@
 import os
+import shutil
 import muteria.common.matrices as common_matrices
+import muteria.common.fs as common_fs
 from muteria.drivers import DriversUtils
+
+from muteria.drivers.testgeneration.tools_by_languages.c.semu.semu import TestcasesToolSemu
 
 def error_exit(err):
 	print ("error: "+err)
@@ -84,3 +88,49 @@ def _get_fault_tests (cm_corebench_scripts_dir, c_id, conf_py, in_res_data_dir, 
 	        f.write(tc+"\n")
 	print("# list printed")
 #~ def _get_fault_tests ()
+			
+def fault_analysis (cm_corebench_scripts_dir, c_id, conf_py, in_muteria_outdir, out_top_dir):
+	if not os.path.isdir(out_top_dir):
+		os.mkdir(out_top_dir)
+                    
+    in_res_data_dir = os.path.join(in_muteria_outdir, 'latest', 'RESULTS_DATA')
+    testtools_workdir = os.path.join(in_muteria_outdir, 'latest', 'testcases_workdir')
+    pass_fail_matrix = os.path.join(in_res_data_dir, "matrices", "PASSFAIL.csv")
+
+	pf_mat = common_matrices.ExecutionMatrix(filename=pass_fail_matrix)
+	test_list = list(pf_mat.get_nonkey_colname_list())
+    #semu_tool_dirs = [d for d in os.listdir(testtools_workdir) if d.startswith('semu_cmp-')]
+    
+    # get fault tests
+    get_commit_fault_tests(cm_corebench_scripts_dir, c_id, conf_py, in_res_data_dir, out_top_dir)
+    
+    # get test to timestamp
+    test_timestamp_file = os.path.join(out_top_dir, "test_to_timestamp.json")
+    test2timestamp = {}
+    ## get tests by tools
+    tools2tests = {}
+    for test in test_list:
+        alias, _ = DriversUtils.reverse_meta_element(test)
+        # XXX: only SEMU
+        if not alias.startswith('semu_cmp-'):
+            continue
+        if alias not in tools2tests:
+            tools2tests[alias] = set()
+        tools2tests[alias].add(test)
+    ## untar tests dir
+    for alias, tests in tools2tests.items():
+        d = os.path.join(testtools_workdir, alias)
+        assert os.path.isdir(d), "test tool dir missing for alias "+ alias
+        test_tar = os.path.join(d, 'tests_files.tar.gz')
+        es = common_fs.TarGz.decompressDir(test_tar)
+        assert len(es) == 0, "decompress error: "+es
+        tests_files = os.path.join(d, 'tests_files')
+        assert os.path.isdir(tests_files), "dir missing after decompress"
+        for test in tests:
+            _, simple_test = DriversUtils.reverse_meta_element(test)
+            gt = _get_generation_time_of_test(simple_test, tests_files)
+            test2timestamp[test] = gt
+        shutil.rmtree(tests_files)
+    
+    common_fs.dumpJSON(test2timestamp, test_timestamp_file)
+#~ def fault_analysis ()

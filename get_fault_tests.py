@@ -132,5 +132,5 @@ def fault_analysis (cm_corebench_scripts_dir, c_id, conf_py, in_muteria_outdir, 
             test2timestamp[test] = gt
         shutil.rmtree(tests_files)
     
-    common_fs.dumpJSON(test2timestamp, test_timestamp_file)
+    common_fs.dumpJSON(test2timestamp, test_timestamp_file, pretty=True)
 #~ def fault_analysis ()

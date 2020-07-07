@@ -118,7 +118,7 @@ def fault_analysis (cm_corebench_scripts_dir, c_id, conf_py, in_muteria_outdir, 
     ## untar tests dir
     for alias, tests in tools2tests.items():
         d = os.path.join(testtools_workdir, alias)
-        assert os.path.isdir(d), "test tool dir missing for alias "+ alias
+        assert os.path.isdir(d), "test tool dir "+d+" missing for alias "+ alias
         test_tar = os.path.join(d, 'tests_files.tar.gz')
         es = common_fs.TarGz.decompressDir(test_tar)
         assert len(es) == 0, "decompress error: "+es

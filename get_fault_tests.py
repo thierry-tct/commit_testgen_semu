@@ -94,7 +94,7 @@ def fault_analysis (cm_corebench_scripts_dir, c_id, conf_py, in_muteria_outdir, 
         os.mkdir(out_top_dir)
 		
     in_res_data_dir = os.path.join(in_muteria_outdir, 'latest', 'RESULTS_DATA')
-    testtools_workdir = os.path.join(in_muteria_outdir, 'latest', 'testcases_workdir')
+    testtools_workdir = os.path.join(in_muteria_outdir, 'latest', 'testscases_workdir')
     pass_fail_matrix = os.path.join(in_res_data_dir, "matrices", "PASSFAIL.csv")
 
     pf_mat = common_matrices.ExecutionMatrix(filename=pass_fail_matrix)

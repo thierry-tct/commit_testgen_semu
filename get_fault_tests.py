@@ -128,7 +128,7 @@ def fault_analysis (cm_corebench_scripts_dir, c_id, conf_py, in_muteria_outdir, 
         assert os.path.isdir(tests_files), "dir missing after decompress"
         for test in tests:
             _, simple_test = DriversUtils.reverse_meta_element(test)
-            gt = _get_generation_time_of_test(simple_test, tests_files)
+            gt = TestcasesToolSemu._get_generation_time_of_test(simple_test, tests_files)
             test2timestamp[test] = gt
         shutil.rmtree(tests_files)
     

@@ -37,6 +37,8 @@ def _get_fault_tests (cm_corebench_scripts_dir, c_id, conf_py, in_res_data_dir, 
     exe_file = exe_file[0]
 	
     fail_test_execution=os.path.join(outdir, "fail_test_checking")
+    if os.path.isdir(fail_test_execution):
+        shutil.rmtree(fail_test_execution)
     if not os.path.isdir(fail_test_execution):
         os.makedirs(fail_test_execution)
 

@@ -53,6 +53,7 @@ AVOID_META_TESTS_LIST_FILE_KEY = "__AVOID_META_TESTS_LIST_FILE__"
 AVOID_META_MUTANTS_LIST_FILE_KEY = "__AVOID_META_MUTANTS_LIST_FILE__"
 FIRST_TIME_MUTANT_EXECUTION_KEY = '__FIRST_TIME_MUTANT_EXECUTION__'
 REMOVE_ADDED_DEVTESTS = '__REMOVE_ADDED_DEVTESTS__'
+NO_COVERAGE_MEASUREMENT_FOR_GENTESTS = '__NO_COVERAGE_MEASUREMENT_FOR_GENTESTS__'
 
 
 SEED_COLLECTION='seed_collection'.upper()
@@ -133,7 +134,7 @@ def main():
     if not cp_data[TEST_GENERATION]:
         print ("#(DBG): Executing {} ...".format(TEST_GENERATION))
         generate_tests (outdir, seeds_dir, muteria_output, original_conf, \
-                                           tg_conf, args.only_gentests, toskip_added_devtest)
+                          tg_conf, args.only_gentests, toskip_added_devtest, args.only_gentests)
         cp_data[TEST_GENERATION] = True
         common_fs.dumpJSON(cp_data, checkpoint_file, pretty=True)
 
@@ -216,7 +217,7 @@ def collect_seeds(outdir, seeds_out, muteria_output, original_conf, toskip_added
     shutil.rmtree(muteria_output)
 #~ def collect_seeds()
 
-def generate_tests(outdir, seeds_dir, muteria_output, original_conf, tg_conf, crashcontinue, toskip_added_devtest):
+def generate_tests(outdir, seeds_dir, muteria_output, original_conf, tg_conf, crashcontinue, toskip_added_devtest, no_cov):
     # set the temporary conf
     tmp_conf_template = os.path.join(os.path.dirname(__file__), \
                                                         'gen_tests_conf.py')
@@ -228,7 +229,8 @@ def generate_tests(outdir, seeds_dir, muteria_output, original_conf, tg_conf, cr
                                 .replace(ORIGINAL_CONF_MODULE_KEY, o_c_module)\
                                 .replace(MUTERIA_OUTPUT_KEY, muteria_output)\
                                             .replace(SEED_DIR_KEY, seeds_dir)\
-                                .replace(REMOVE_ADDED_DEVTESTS, str(toskip_added_devtest)))
+                                .replace(REMOVE_ADDED_DEVTESTS, str(toskip_added_devtest))\
+                                .replace(NO_COVERAGE_MEASUREMENT_FOR_GENTESTS, str(no_cov)))
 
     # prepare seeds
     tar_seeds_dir = seeds_dir + '.tar.gz'

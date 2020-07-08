@@ -3,6 +3,7 @@
 from __future__ import print_function
 
 import os, sys, json
+import argparse
 
 import matplotlib
 matplotlib.use('Agg')
@@ -137,68 +138,119 @@ def plotTrend(name_to_data, image_file, xlabel, ylabel, yticks_range=np.arange(0
 #~ def plotTrend()
 
 def main():
-    assert len(sys.argv) == 2
-    input_topdir = sys.argv[1]
+    parser = argparse.ArgumentParser()
+    parser.add_argument("input_topdir", help="topdir containing the data. The output will also be there")
+    parser.add_argument("--is_testgen_only", action="store_true", help="enable case of tg_only")
+    parser.add_argument("--max_time", type=int, default=2*3600, help="Max test generation time")
+    args.parser.parse_args()
+    input_topdir = args.input_topdir
     outdir = os.path.join(input_topdir, "OUTPUT")
-    
-    # load data
-    id2rMSobj = {}
-    for d in os.listdir(input_topdir):
-        if not os.path.isdir(d) or d == "OUTPUT":
-            continue
-        # load data
-        filename = os.path.join(input_topdir, d, 'rMS.json')
-        id2rMSobj[d] = loadJson(filename)
+    is_testgen_only = args.is_testgen_only
+    max_time = args.max_time
     
     if not os.path.isdir(outdir):
         os.mkdir(outdir)
         
-    lp_pos_to_id = {}
-    
-    # For each category, get id to rMS
-    all_all_alias2rMSlist = {}
-    additional_alias2rMSlist = {}
-    all_genonly_alias2rMSlist = {}
-    for resdict, key in [(all_all_alias2rMSlist, "ALL-ALL"), \
-                         (all_genonly_alias2rMSlist, "ALL-GENONLY"), \
-                         (additional_alias2rMSlist, "ADDITIONAL")]:
-        id_list = []
-        for d_id, rMSobj in id2rMSobj.items():
-            id_list.append(d_id)
-            for alias, val in rMSobj[key].items():
-                if alias not in resdict:
-                    resdict[alias] = []
-                resdict[alias].append(val)
-    
-        # Plotting
-        resdict_omb = {k.replace("_cmp", "").replace("_se", ""):v for k,v in resdict.items() if ('semu' not in k or 'omb' in k)}
-        resdict_non_omb = {k.replace("_cmp", "").replace("_se", ""):v for k,v in resdict.items() if ('semu' not in k or 'omb' not in k)}
-        for omb, data_dict in [("", resdict_non_omb), ("-omb", resdict_omb)]:
-            boxplotfile = os.path.join(outdir, key+"-boxplot"+omb)
-            linesplotfile = os.path.join(outdir, key+"-lineplot"+omb)
-            medvals = plotBoxes(data_dict, sorted(list(data_dict)), boxplotfile, ['white']*20, ylabel="Relevant Mutation Score", yticks_range=range(0,101,10), fontsize=26, title=None)
-            dumpJson (medvals, boxplotfile+"-medians.json")
-            trend_data = {}
-            shadow_key = None
-            for k in data_dict:
-                if k.startswith('shadow'):
-                    assert shadow_key is None
-                    shadow_key = k
-            rank = list(range(len(data_dict[shadow_key])))
-            rank.sort(key=lambda x: max([data_dict[k][x] - data_dict[shadow_key][x] for k in set(data_dict) - {shadow_key}]))
-            rank = {pos: newpos for newpos, pos in enumerate(rank)}
-            if key not in lp_pos_to_id:
-                lp_pos_to_id[key] = {}
-            if omb not in lp_pos_to_id[key]:
-                lp_pos_to_id[key][omb] = {}
-            for oldpos, newpos in rank.items():
-                lp_pos_to_id[key][omb][newpos] = id_list[oldpos]
-            for alias, arr in data_dict.items():
-                trend_data[alias] = {}
-                for pos, val in enumerate(arr):
-                    trend_data[alias][rank[pos] + 1] = val
-            plotTrend(trend_data, linesplotfile, xlabel="Commit", ylabel="Relevant Mutation Score", yticks_range=range(0,101,10), order=sorted(list(data_dict))) 
-            dumpJson (lp_pos_to_id[key][omb], linesplotfile+"-pos_to_id.json")
+    if is_testgen_only:
+        # load data
+        id2test2time = {}
+        id2bugtests = {}
+        seen_max_time_sec = 0
+        time_set = set()
+        for d in os.listdir(input_topdir):
+            if not os.path.isdir(d) or d == "OUTPUT":
+                continue
+            # load data
+            test2time_file = os.path.join(input_topdir, d, 'test_to_timestamp.json')
+            test2time_obj = loadJson(test2time_file)
+            for test, time_stamp in test2time_obj.items():
+                time_stamp = int(round(time_stamp))
+                seen_max_time_sec = max(seen_max_time_sec, time_stamp)
+                time_set.add(time_stamp)
+            for b_id in os.listdir(os.path.join(input_topdir,d)):
+                if not os.path.isdir(b_id):
+                    continue
+                id2test2time[b_id] = dict(test2time_obj)
+                id2bugtests[b_id] = set()
+                with open(os.path.join(input_topdir, d, b_id, "fail_test_checking", "fault_reveling_tests.txt")) as f:
+                    for ft in f:
+                        id2bugtests[b_id].add(ft.strip())
+        
+        if seen_max_time_sec > max_time:
+            print("# WARNING: seen max time higher than max time ({} VS {})".format(seen_max_time_sec, max_time))
+            
+        # compute FD per time
+        nbugs = len(id2bugtests)
+        tech2time2fd = {}
+        for b_id, test2time in id2test2time.items():
+            for test, time_sec in test2time.items():
+                tech, raw_test = test.split(':')
+                tech = tech.replace("_cmp", "")
+                if tech not in tech2time2fd:
+                    tech2time2fd[tech] = {t: None for t in sampled_times_minutes}
+                if time_sec > max_time:
+                    continue
+                if test in id2bugtests[b_id]:
+                    
+        
+        # plot
+        
+    else:
+        # load data
+        id2rMSobj = {}
+        for d in os.listdir(input_topdir):
+            if not os.path.isdir(d) or d == "OUTPUT":
+                continue
+            # load data
+            filename = os.path.join(input_topdir, d, 'rMS.json')
+            id2rMSobj[d] = loadJson(filename)
+
+        lp_pos_to_id = {}
+
+        # For each category, get id to rMS
+        all_all_alias2rMSlist = {}
+        additional_alias2rMSlist = {}
+        all_genonly_alias2rMSlist = {}
+        for resdict, key in [(all_all_alias2rMSlist, "ALL-ALL"), \
+                             (all_genonly_alias2rMSlist, "ALL-GENONLY"), \
+                             (additional_alias2rMSlist, "ADDITIONAL")]:
+            id_list = []
+            for d_id, rMSobj in id2rMSobj.items():
+                id_list.append(d_id)
+                for alias, val in rMSobj[key].items():
+                    if alias not in resdict:
+                        resdict[alias] = []
+                    resdict[alias].append(val)
+
+            # Plotting
+            resdict_omb = {k.replace("_cmp", "").replace("_se", ""):v for k,v in resdict.items() if ('semu' not in k or 'omb' in k)}
+            resdict_non_omb = {k.replace("_cmp", "").replace("_se", ""):v for k,v in resdict.items() if ('semu' not in k or 'omb' not in k)}
+            for omb, data_dict in [("", resdict_non_omb), ("-omb", resdict_omb)]:
+                boxplotfile = os.path.join(outdir, key+"-boxplot"+omb)
+                linesplotfile = os.path.join(outdir, key+"-lineplot"+omb)
+                medvals = plotBoxes(data_dict, sorted(list(data_dict)), boxplotfile, ['white']*20, ylabel="Relevant Mutation Score", yticks_range=range(0,101,10), fontsize=26, title=None)
+                dumpJson (medvals, boxplotfile+"-medians.json")
+                trend_data = {}
+                shadow_key = None
+                for k in data_dict:
+                    if k.startswith('shadow'):
+                        assert shadow_key is None
+                        shadow_key = k
+                rank = list(range(len(data_dict[shadow_key])))
+                rank.sort(key=lambda x: max([data_dict[k][x] - data_dict[shadow_key][x] for k in set(data_dict) - {shadow_key}]))
+                rank = {pos: newpos for newpos, pos in enumerate(rank)}
+                if key not in lp_pos_to_id:
+                    lp_pos_to_id[key] = {}
+                if omb not in lp_pos_to_id[key]:
+                    lp_pos_to_id[key][omb] = {}
+                for oldpos, newpos in rank.items():
+                    lp_pos_to_id[key][omb][newpos] = id_list[oldpos]
+                for alias, arr in data_dict.items():
+                    trend_data[alias] = {}
+                    for pos, val in enumerate(arr):
+                        trend_data[alias][rank[pos] + 1] = val
+                plotTrend(trend_data, linesplotfile, xlabel="Commit", ylabel="Relevant Mutation Score", yticks_range=range(0,101,10), order=sorted(list(data_dict))) 
+                dumpJson (lp_pos_to_id[key][omb], linesplotfile+"-pos_to_id.json")
     print("# DONE!")
 #~ def main()
 

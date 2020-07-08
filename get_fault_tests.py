@@ -54,8 +54,8 @@ def _get_fault_tests (cm_corebench_scripts_dir, c_id, conf_py, in_res_data_dir, 
         for test in pf_mat.get_nonkey_colname_list():
             f.write(test+"\n")
     
-    nohash = ['--nohashoutlog']
-    #nohash = []
+    #nohash = ['--nohashoutlog']
+    nohash = []
     
     print("# info: running old ...")
     version = "old"

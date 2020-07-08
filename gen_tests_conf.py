@@ -151,6 +151,10 @@ else:
     
 TESTCASE_TOOLS_CONFIGS = semu_cmp_list + [shadow_for_cmp] + [dev_test]
 
+if __NO_COVERAGE_MEASUREMENT_FOR_GENTESTS__:
+    # list of test tool aliases for which we should not measure coverages
+    TESTCASE_TOOLALIASES_TO_SKIP_CRITERIA_COVERAGE = [tt.get_tool_config_alias() for tt in semu_cmp_list + [shadow_for_cmp]]
+
 # Remove added corebench test
 if len(__REMOVE_ADDED_DEVTESTS__) > 0:
     DEVELOPER_TESTS_LIST = [dt for dt in DEVELOPER_TESTS_LIST if dt not in __REMOVE_ADDED_DEVTESTS__]

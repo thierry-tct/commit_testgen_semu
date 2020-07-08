@@ -166,7 +166,8 @@ def main():
             for test, time_stamp in test2time_obj.items():
                 time_stamp = int(round(time_stamp))
                 seen_max_time_sec = max(seen_max_time_sec, time_stamp)
-                time_set.add(time_stamp)
+                if time_stamp <= max_time:
+                    time_set.add(time_stamp)
             for b_id in os.listdir(os.path.join(input_topdir,d)):
                 if not os.path.isdir(b_id):
                     continue
@@ -183,18 +184,38 @@ def main():
         nbugs = len(id2bugtests)
         tech2time2fd = {}
         for b_id, test2time in id2test2time.items():
+            techs_finding_bug = set()
             for test, time_sec in test2time.items():
                 tech, raw_test = test.split(':')
                 tech = tech.replace("_cmp", "")
+                if tech in techs_finding_bug:
+                    # count bug once
+                    continue
                 if tech not in tech2time2fd:
-                    tech2time2fd[tech] = {t: None for t in sampled_times_minutes}
+                    tech2time2fd[tech] = {t: 0 for t in time_set}
+                time_sec = int(round(time_sec))
                 if time_sec > max_time:
                     continue
                 if test in id2bugtests[b_id]:
+                    techs_finding_bug.add(tech)
+                    for t in time_set:
+                        if t >= time_sec:
+                            tech2time2fd[tech][time_sec] += 1 
                     
-        
+        yticks_range = range(0, nbugs, 2)
+        ylabel = "NUmber of Faults Revealed"
+        # Normalize
+        """
+        for tech in tech2time2fd:
+            for time_sec in tech2time2fd[tech]:
+                tech2time2fd[tech][time_sec] = tech2time2fd[tech][time_sec] *1.0 / nbugs
+        yticks_range = range(0, 1.01, 10)
+        ylabel = "Fault Revelation"
+        """
+                
         # plot
-        
+        linesplotfile = os.path.join(outdir, "lineplot")
+        plotTrend(tech2time2fd, linesplotfile, xlabel="ellapsed time (s)", ylabel=ylabel, yticks_range=yticks_range, order=sorted(list(tech2time2fd)))
     else:
         # load data
         id2rMSobj = {}

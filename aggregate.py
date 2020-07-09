@@ -13,6 +13,7 @@ import seaborn as sns
 from numpy import median as np_median
 from numpy import average as np_average
 import numpy as np
+import pandas as pd
 
 ###### Non Parametic Vargha Delaney A12 ######
 # Taken from -- https://gist.github.com/timm/5630491
@@ -139,7 +140,7 @@ def plotTrend(name_to_data, image_file, xlabel, ylabel, yticks_range=np.arange(0
 
 def plotHeatmap(dataframe, xcol, ycol, datcol, outfile):
     pivot_data = dataframe.pivot(ycol, xcol, datcol)
-    ax = sns.heatmap(flights)
+    ax = sns.heatmap(flights, annot=True, fmt="d", linewidths=.5, cmap="YlGnBu")
     plt.savefig(outfile+".pdf", format='pdf')
 #~ def plotHeatmap()
 
@@ -161,6 +162,7 @@ def main():
         # load data
         id2test2time = {}
         id2bugtests = {}
+        id2difftests = {}
         seen_max_time_sec = 0
         time_set = set()
         for d in os.listdir(input_topdir):
@@ -178,16 +180,24 @@ def main():
                 if not os.path.isdir(b_id):
                     continue
                 id2test2time[b_id] = dict(test2time_obj)
-                id2bugtests[b_id] = set()
-                with open(os.path.join(input_topdir, d, b_id, "fail_test_checking", "fault_reveling_tests.txt")) as f:
-                    for ft in f:
-                        id2bugtests[b_id].add(ft.strip())
-        
+                
+                fr_file = os.path.join(input_topdir, d, b_id, "fail_test_checking", "fault_reveling_tests.txt")
+                diff_file = os.path.join(input_topdir, d, b_id, "diff_test_checking", "diff_reveling_tests.txt")
+                elems = [(fr_file, id2bugtests)]
+                if os.path.isfile(diff_file):
+                    elems.append((diff_file, id2difftests))
+                for _file, i2t in elems:
+                    i2t[b_id] = set()
+                    with open(_file) as f:
+                        for ft in f:
+                            i2t[b_id].add(ft.strip())
+                
         if seen_max_time_sec > max_time:
             print("# WARNING: seen max time higher than max time ({} VS {})".format(seen_max_time_sec, max_time))
             
         # compute FD per time
         nbugs = len(id2bugtests)
+        ndiffs = len(id2difftests)
         tech2time2fd = {}
         for b_id, test2time in id2test2time.items():
             techs_finding_bug = set()
@@ -220,9 +230,41 @@ def main():
             yticks_range = range(0, 1.01, 10)
             ylabel = "Fault Revelation"
                 
-        # plot
+        # plot Trend
         linesplotfile = os.path.join(outdir, "lineplot")
         plotTrend(tech2time2fd, linesplotfile, xlabel="ellapsed time (s)", ylabel=ylabel, yticks_range=yticks_range, order=sorted(list(tech2time2fd)))
+        
+        # Compute
+        fr_tech2id2tests = {}
+        diff_tech2id2tests = {}
+        for metric, data, tech2id2test in [("FR", id2bugtests, fr_tech2id2tests), ("Differences", id2difftests, diff_tech2id2tests)]:
+            heatmap_file = os.path.join(outdir, "heatmap-"+metric)
+            # construct dataframe (select the test generated before or at max_time)
+            for b_id, test2time in id2test2time.items():
+                for test, time_sec in test2time.items():
+                    tech, raw_test = test.split(':')
+                    tech = tech.replace("_cmp", "")
+                    if tech not in tech2id2tests:
+                        tech2id2tests[tech] = {b_id: []}
+                    if b_id not in tech2id2tests[tech]:
+                        tech2id2tests[tech][b_id] = []
+                    time_sec = int(round(time_sec))
+                    if time_sec > max_time:
+                        continue
+                    if test in data[b_id]:
+                        tech2id2tests[tech][b_id].append(test)
+                        
+            for tech in tech2id2tests:
+                for b_id in data:
+                    if b_id not in tech2id2tests[tech]:
+                        tech2id2tests[tech][b_id] = []
+            # Get dataframes and plot
+            heatmap_df = []
+            for tech in tech2id2tests:
+                for b_id in tech2id2tests[tech]:
+                    heatmap_df.append({"Tech": tech, "ID": b_id, "#Tests": len(tech2id2tests[tech][b_id])})
+            heatmap_df = pd.DataFrame(heatmap_df)
+            plotHeatmap(heatmap_df, "ID", "Tech", "#Tests", heatmap_file)
     else:
         # load data
         id2rMSobj = {}

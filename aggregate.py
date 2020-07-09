@@ -137,6 +137,12 @@ def plotTrend(name_to_data, image_file, xlabel, ylabel, yticks_range=np.arange(0
     plt.close('all')
 #~ def plotTrend()
 
+def plotHeatmap(dataframe, xcol, ycol, datcol, outfile):
+    pivot_data = dataframe.pivot(ycol, xcol, datcol)
+    ax = sns.heatmap(flights)
+    plt.savefig(outfile+".pdf", format='pdf')
+#~ def plotHeatmap()
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("input_topdir", help="topdir containing the data. The output will also be there")
@@ -202,16 +208,17 @@ def main():
                         if t >= time_sec:
                             tech2time2fd[tech][time_sec] += 1 
                     
-        yticks_range = range(0, nbugs, 2)
-        ylabel = "NUmber of Faults Revealed"
-        # Normalize
-        """
-        for tech in tech2time2fd:
-            for time_sec in tech2time2fd[tech]:
-                tech2time2fd[tech][time_sec] = tech2time2fd[tech][time_sec] *1.0 / nbugs
-        yticks_range = range(0, 1.01, 10)
-        ylabel = "Fault Revelation"
-        """
+        normalize = False
+        
+        if not normalize:
+            yticks_range = range(0, nbugs, 2)
+            ylabel = "NUmber of Faults Revealed"
+        else:
+            for tech in tech2time2fd:
+                for time_sec in tech2time2fd[tech]:
+                    tech2time2fd[tech][time_sec] = tech2time2fd[tech][time_sec] *1.0 / nbugs
+            yticks_range = range(0, 1.01, 10)
+            ylabel = "Fault Revelation"
                 
         # plot
         linesplotfile = os.path.join(outdir, "lineplot")

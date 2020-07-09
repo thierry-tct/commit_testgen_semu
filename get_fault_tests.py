@@ -26,7 +26,7 @@ def get_commit_fault_tests (cm_corebench_scripts_dir, c_id, conf_py, in_res_data
         _get_fault_tests (cm_corebench_scripts_dir, c_id, conf_py, in_res_data_dir, outdir)
 #~ def get_commit_fault_tests ()
 	
-def _get_fault_tests (cm_corebench_scripts_dir, c_id, conf_py, in_res_data_dir, outdir):
+def _get_fault_tests (cm_corebench_scripts_dir, c_id, conf_py, in_res_data_dir, outdir, get_difference=True):
     if not os.path.isdir(outdir):
         os.mkdir(outdir)
 	
@@ -57,23 +57,60 @@ def _get_fault_tests (cm_corebench_scripts_dir, c_id, conf_py, in_res_data_dir, 
     nohash = ['--nohashoutlog']
     #nohash = []
     
-    print("# info: running old ...")
+    print("# info: running bug-fix old ...")
     version = "old"
     custom_exe = os.path.join(exe_dir, version, exe_file)
     stdin = "{}\n{}\n{}\n{}\n".format("tests", os.path.join(fail_test_execution, version),
                                       '{"src/'+exe_file+'": "'+custom_exe+'"}',
                                       test_list_file)
     if os.system(" ".join(["printf", "'"+stdin+"'", "|", "muteria", "--config", conf_py, "--lang", "c", "customexec"]+nohash)) != 0:
-        assert False, "old failed"
+        assert False, "bug-fix old failed"
         
-    print("# info: running new ...")
+    print("# info: running bug-fix new ...")
     version = "new"
     custom_exe = os.path.join(exe_dir, version, exe_file)
     stdin = "{}\n{}\n{}\n{}\n".format("tests", os.path.join(fail_test_execution, version),
                                       '{"src/'+exe_file+'": "'+custom_exe+'"}',
                                         test_list_file)
     if os.system(" ".join(["printf", "'"+stdin+"'", "|", "muteria", "--config", conf_py, "--lang", "c", "customexec"]+nohash)) != 0:
-        assert False, "new failed"
+        assert False, "bug-fix new failed"
+	
+    if get_difference:
+        # get differences in bug introducing
+        ## get diff exe file
+        diff_exe_dir = os.path.join(os.path.dirname(in_res_data_dir), 'code_build_workdir')
+        map_file_ = os.path.join(diff_exe_dir, 'files_map')
+        map_ = common_fs.loadJSON(map_file_)
+        diff_exe_file = None
+        for f, dest in map_.items():
+            if os.path.basename(f) == exe_file:
+                assert diff_exe_file is None, "multiple exefile found in defference"
+                diff_exe_file = os.path.join(diff_exe_dir, dest)
+                assert os.path.isfile(diff_exe_file), "missing diff_exe_file: "+diff_exe_file
+        assert diff_exe_file is not None, "diff exe file not found"
+        ## Execution
+        diff_test_execution=os.path.join(outdir, "diff_test_checking")
+        diff_finding_tests_list = os.path.join(diff_test_execution, "diff_reveling_tests.txt")
+        if os.path.isdir(diff_test_execution):
+            shutil.rmtree(diff_test_execution)
+        if not os.path.isdir(diff_test_execution):
+            os.makedirs(diff_test_execution)
+
+        print("# info: running bug-intro old ...")
+        version = "old"
+        stdin = "{}\n{}\n{}\n{}\n".format("tests", os.path.join(diff_test_execution, version),
+                                          '{"src/'+exe_file+'": "'+diff_exe_file+'"}',
+                                          test_list_file)
+        if os.system(" ".join(["printf", "'"+stdin+"'", "|", "KLEE_CHANGE_RUNTIME_SET_OLD_VERSION=on", "muteria", "--config", conf_py, "--lang", "c", "customexec"]+nohash)) != 0:
+            assert False, "bug-intro old failed"
+
+        print("# info: running bug-intro new ...")
+        version = "new"
+        stdin = "{}\n{}\n{}\n{}\n".format("tests", os.path.join(diff_test_execution, version),
+                                          '{"src/'+exe_file+'": "'+diff_exe_file+'"}',
+                                            test_list_file)
+        if os.system(" ".join(["printf", "'"+stdin+"'", "|", "muteria", "--config", conf_py, "--lang", "c", "customexec"]+nohash)) != 0:
+            assert False, "bug-intro new failed"
 
     os.remove(test_list_file)
 	 

@@ -19,13 +19,30 @@ id_with_many_bugs = {
 def get_commit_fault_tests (cm_corebench_scripts_dir, c_id, conf_py, in_res_data_dir, out_top_dir):
     if c_id in id_with_many_bugs:
         for used_c_id in id_with_many_bugs[c_id]:
+            get_difference = (used_c_id == c_id)
             outdir = os.path.join(out_top_dir, used_c_id)
-            _get_fault_tests (cm_corebench_scripts_dir, used_c_id, conf_py, in_res_data_dir, outdir)
+            _get_fault_tests (cm_corebench_scripts_dir, used_c_id, conf_py, in_res_data_dir, outdir, get_difference=get_difference)
     else:
         outdir = os.path.join(out_top_dir, c_id)
         _get_fault_tests (cm_corebench_scripts_dir, c_id, conf_py, in_res_data_dir, outdir)
 #~ def get_commit_fault_tests ()
 	
+def _extract_list (folder, res_list_file):
+    _, old_o = list(common_matrices.OutputLogData(os.path.join(folder, 'old', 'program_output.json')).get_zip_objective_and_data())[0]
+    _, new_o = list(common_matrices.OutputLogData(os.path.join(folder, 'new', 'program_output.json')).get_zip_objective_and_data())[0]
+    assert len(old_o) == len(new_o)
+    diff_tests = []
+    for tc in old_o:
+        eq = common_matrices.OutputLogData.outlogdata_equiv(old_o[tc], new_o[tc])
+        assert eq is not None, "PB"
+        if not eq:
+            diff_tests.append(tc)
+    with open(res_list_file, "w") as f:
+        for tc in diff_tests:
+            f.write(tc+"\n")
+    print("# list printed into {}".format(res_list_file))
+#~ def _extract_list ()
+    
 def _get_fault_tests (cm_corebench_scripts_dir, c_id, conf_py, in_res_data_dir, outdir, get_difference=True):
     if not os.path.isdir(outdir):
         os.mkdir(outdir)
@@ -74,6 +91,8 @@ def _get_fault_tests (cm_corebench_scripts_dir, c_id, conf_py, in_res_data_dir, 
                                         test_list_file)
     if os.system(" ".join(["printf", "'"+stdin+"'", "|", "muteria", "--config", conf_py, "--lang", "c", "customexec"]+nohash)) != 0:
         assert False, "bug-fix new failed"
+        
+    _extract_list (fail_test_execution, bug_finding_tests_list)
 	
     if get_difference:
         # get differences in bug introducing
@@ -112,21 +131,9 @@ def _get_fault_tests (cm_corebench_scripts_dir, c_id, conf_py, in_res_data_dir, 
         if os.system(" ".join(["printf", "'"+stdin+"'", "|", "muteria", "--config", conf_py, "--lang", "c", "customexec"]+nohash)) != 0:
             assert False, "bug-intro new failed"
 
-    os.remove(test_list_file)
-	 
-    _, old_o = list(common_matrices.OutputLogData(os.path.join(fail_test_execution, 'old', 'program_output.json')).get_zip_objective_and_data())[0]
-    _, new_o = list(common_matrices.OutputLogData(os.path.join(fail_test_execution, 'new', 'program_output.json')).get_zip_objective_and_data())[0]
-    assert len(old_o) == len(new_o)
-    diff_tests = []
-    for tc in old_o:
-        eq = common_matrices.OutputLogData.outlogdata_equiv(old_o[tc], new_o[tc])
-        assert eq is not None, "PB"
-        if not eq:
-            diff_tests.append(tc)
-    with open(bug_finding_tests_list, "w") as f:
-	    for tc in diff_tests:
-	        f.write(tc+"\n")
-    print("# list printed")
+        _extract_list (diff_test_execution, diff_finding_tests_list)
+    
+    os.remove(test_list_file)    
 #~ def _get_fault_tests ()
 			
 def fault_analysis (cm_corebench_scripts_dir, c_id, conf_py, in_muteria_outdir, out_top_dir):

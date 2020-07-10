@@ -90,11 +90,11 @@ def plotBoxes(plotobj, order, imagefile, colors_bw, ylabel="APFD", yticks_range=
     return medianValues
 #~ def plotBoxes()
 
-colors_bw = ['white', 'whitesmoke', 'lightgray', 'silver', 'darkgrey', 'gray', 'dimgrey', "black"]
-colors = ["green", 'blue', 'red', "black", "maroon", "magenta", "cyan"]
-linestyles = ['solid', 'solid', 'dashed', 'dashed', 'dashdot', 'dotted', 'solid']
-linewidths = [1.75, 1.75, 2.5, 2.5, 3.25, 3.75, 2]
-markers = ['o', 'x', '^', 's', '*', '+', 'H', 'v', 'p', 'd']
+colors_bw = ['white', 'whitesmoke', 'lightgray', 'silver', 'darkgrey', 'gray', 'dimgrey', "black"] * 2
+colors = ["green", 'blue', 'red', "black", "maroon", "magenta", "cyan"] * 2
+linestyles = ['solid', 'solid', 'dashed', 'dashed', 'dashdot', 'dotted', 'solid'] * 2
+linewidths = [1.75, 1.75, 2.5, 2.5, 3.25, 3.75, 2] * 2
+markers = ['o', 'x', '^', 's', '*', '+', 'H', 'v', 'p', 'd'] * 2
 
 def plotTrend(name_to_data, image_file, xlabel, ylabel, yticks_range=np.arange(0,1.01,0.2), order=None):
     if order is None:

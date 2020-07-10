@@ -62,3 +62,6 @@ except NameError:
 # Remove added corebench test
 if len(__REMOVE_ADDED_DEVTESTS__) > 0:
     DEVELOPER_TESTS_LIST = [dt for dt in DEVELOPER_TESTS_LIST if dt not in __REMOVE_ADDED_DEVTESTS__]
+
+# no cov measurement needed for seed
+TESTCASE_TOOLALIASES_TO_SKIP_CRITERIA_COVERAGE = [tt.get_tool_config_alias() for tt in [shadow_for_seeds]]

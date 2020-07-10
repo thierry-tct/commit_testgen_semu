@@ -149,7 +149,7 @@ def main():
     parser.add_argument("input_topdir", help="topdir containing the data. The output will also be there")
     parser.add_argument("--is_testgen_only", action="store_true", help="enable case of tg_only")
     parser.add_argument("--max_time", type=int, default=2*3600, help="Max test generation time")
-    args.parser.parse_args()
+    args = parser.parse_args()
     input_topdir = args.input_topdir
     outdir = os.path.join(input_topdir, "OUTPUT")
     is_testgen_only = args.is_testgen_only

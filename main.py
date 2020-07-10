@@ -210,7 +210,8 @@ def collect_seeds(outdir, seeds_out, muteria_output, original_conf, toskip_added
                                       src_new_klee_ktest_dir_or_sym_args=\
                                                klee_tests_dir_or_sym_args, \
                                       klee_ktest_is_sym_args=True, \
-                                      compress_dest=compress_dest)
+                                      compress_dest=compress_dest,
+                                      skip_failure=None)
 
     # delete muteria output
     os.remove(tmp_conf)

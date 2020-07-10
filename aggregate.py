@@ -140,8 +140,9 @@ def plotTrend(name_to_data, image_file, xlabel, ylabel, yticks_range=np.arange(0
 
 def plotHeatmap(dataframe, xcol, ycol, datcol, outfile):
     pivot_data = dataframe.pivot(ycol, xcol, datcol)
-    ax = sns.heatmap(flights, annot=True, fmt="d", linewidths=.5, cmap="YlGnBu")
+    ax = sns.heatmap(pivot_data, annot=True, fmt="d", linewidths=.5, cmap="YlGnBu")
     plt.savefig(outfile+".pdf", format='pdf')
+    plt.close('all')
 #~ def plotHeatmap()
 
 def main():

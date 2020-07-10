@@ -244,13 +244,16 @@ def main():
                 if test not in id2test2time[b_id]:
                     id2test2time[b_id][test] = seen_max_time_sec
         
-        # Compute
+        # Compute heatmap data
         fr_tech2id2tests = {}
         diff_tech2id2tests = {}
         for metric, data, tech2id2tests in [("FR", id2bugtests, fr_tech2id2tests), ("Differences", id2difftests, diff_tech2id2tests)]:
             heatmap_file = os.path.join(outdir, "heatmap-"+metric)
             # construct dataframe (select the test generated before or at max_time)
             for b_id, test2time in id2test2time.items():
+                if b_id not in data:
+                    # diff do not have same as FR
+                    continue
                 for test, time_sec in test2time.items():
                     tech, raw_test = test.split(':')
                     tech = tech.replace("_cmp", "")
@@ -261,7 +264,7 @@ def main():
                     time_sec = int(round(time_sec))
                     if time_sec > max_time:
                         continue
-                    if b_id in data and test in data[b_id]:
+                    if test in data[b_id]:
                         tech2id2tests[tech][b_id].append(test)
                         
             for tech in tech2id2tests:

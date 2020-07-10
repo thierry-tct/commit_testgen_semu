@@ -142,9 +142,9 @@ def plotHeatmap(dataframe, xcol, ycol, datcol, outfile):
     pivot_data = dataframe.pivot(ycol, xcol, datcol)
     plt.figure(figsize=(13, 9))
     plt.gcf().subplots_adjust(bottom=0.27)
-    sns.set(font_scale = 0.75)
+    sns.set(font_scale = 0.85)
     ax = sns.heatmap(pivot_data, annot=True, annot_kws={"fontsize":8}, fmt="d", linewidths=.5, cmap="YlGnBu")
-    plt.savefig(outfile+".pdf", format='pdf')
+    plt.savefig(outfile+".pdf", format='pdf', bbox_inches='tight')
     plt.close('all')
 #~ def plotHeatmap()
 

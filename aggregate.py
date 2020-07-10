@@ -142,7 +142,8 @@ def plotHeatmap(dataframe, xcol, ycol, datcol, outfile):
     pivot_data = dataframe.pivot(ycol, xcol, datcol)
     plt.figure(figsize=(13, 9))
     plt.gcf().subplots_adjust(bottom=0.27)
-    ax = sns.heatmap(pivot_data, annot=True, fmt="d", linewidths=.5, cmap="YlGnBu")
+    sns.set(font_scale = 0.75)
+    ax = sns.heatmap(pivot_data, annot=True, annot_kws={"fontsize":8}, fmt="d", linewidths=.5, cmap="YlGnBu")
     plt.savefig(outfile+".pdf", format='pdf')
     plt.close('all')
 #~ def plotHeatmap()
@@ -236,6 +237,11 @@ def main():
         # plot Trend
         linesplotfile = os.path.join(outdir, "lineplot")
         plotTrend(tech2time2fd, linesplotfile, xlabel="ellapsed time (s)", ylabel=ylabel, yticks_range=yticks_range, order=sorted(list(tech2time2fd)))
+        
+        # XXX: Update id2test2time by setting the time of tests without time to the maximum available value
+        for b_id, test in list(id2bugtests.items()+ + list(id2difftests.items()):
+            if test not in id2test2time[b_id]:
+                id2test2time[b_id][test] = seen_max_time_sec
         
         # Compute
         fr_tech2id2tests = {}

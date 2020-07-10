@@ -239,7 +239,7 @@ def main():
         plotTrend(tech2time2fd, linesplotfile, xlabel="ellapsed time (s)", ylabel=ylabel, yticks_range=yticks_range, order=sorted(list(tech2time2fd)))
         
         # XXX: Update id2test2time by setting the time of tests without time to the maximum available value
-        for b_id, test in list(id2bugtests.items() + list(id2difftests.items()):
+        for b_id, test in list(id2bugtests.items()) + list(id2difftests.items()):
             if test not in id2test2time[b_id]:
                 id2test2time[b_id][test] = seen_max_time_sec
         

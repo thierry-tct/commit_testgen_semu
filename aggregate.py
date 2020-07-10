@@ -237,7 +237,7 @@ def main():
         # Compute
         fr_tech2id2tests = {}
         diff_tech2id2tests = {}
-        for metric, data, tech2id2test in [("FR", id2bugtests, fr_tech2id2tests), ("Differences", id2difftests, diff_tech2id2tests)]:
+        for metric, data, tech2id2tests in [("FR", id2bugtests, fr_tech2id2tests), ("Differences", id2difftests, diff_tech2id2tests)]:
             heatmap_file = os.path.join(outdir, "heatmap-"+metric)
             # construct dataframe (select the test generated before or at max_time)
             for b_id, test2time in id2test2time.items():

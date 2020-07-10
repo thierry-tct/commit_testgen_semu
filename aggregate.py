@@ -181,7 +181,7 @@ def main():
                 if time_stamp <= max_time:
                     time_set.add(time_stamp)
             for b_id in os.listdir(os.path.join(input_topdir,d)):
-                if not os.path.isdir(b_id):
+                if not os.path.isdir(os.path.join(input_topdir,d, b_id)):
                     continue
                 id2test2time[b_id] = dict(test2time_obj)
                 
@@ -226,7 +226,7 @@ def main():
         
         if not normalize:
             yticks_range = range(0, nbugs, 2)
-            ylabel = "NUmber of Faults Revealed"
+            ylabel = "Number of Faults Revealed"
         else:
             for tech in tech2time2fd:
                 for time_sec in tech2time2fd[tech]:
@@ -261,7 +261,7 @@ def main():
                     time_sec = int(round(time_sec))
                     if time_sec > max_time:
                         continue
-                    if test in data[b_id]:
+                    if b_id in data and test in data[b_id]:
                         tech2id2tests[tech][b_id].append(test)
                         
             for tech in tech2id2tests:
@@ -274,7 +274,7 @@ def main():
                 for b_id in tech2id2tests[tech]:
                     heatmap_df.append({"Tech": tech, "ID": b_id, "#Tests": len(tech2id2tests[tech][b_id])})
             heatmap_df = pd.DataFrame(heatmap_df)
-            plotHeatmap(heatmap_df, "ID", "Tech", "#Tests", heatmap_file)
+            plotHeatmap(heatmap_df, "ID", "Technique", "#Tests", heatmap_file)
     else:
         # load data
         id2rMSobj = {}

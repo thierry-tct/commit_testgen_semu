@@ -34,7 +34,7 @@ from muteria.drivers.testgeneration.tools_by_languages.c.semu.\
 from muteria.drivers.testgeneration.tools_by_languages.c.semu.driver_config \
                                              import MetaMuSource, DriverConfigSemu
 
-t_exec_timeout = 10
+t_exec_timeout = 60
 
 OLD = False  # change this to enable old
 
@@ -122,15 +122,15 @@ else:
                                 ('-semu-checknum-before-testgen-for-discarded', '0'),
                                 ('-semu-mutant-state-continue-proba', '0.0'),
                                 #('-semu-max-total-tests-gen', '1000')
-                                ('-semu-max-tests-gen-per-mutant', '2000'),
+                                ('-semu-max-tests-gen-per-mutant', '30000'),
                                 ('-solver-backend', 'z3'),
                                 ('-max-memory', '150000'),
 
                                 ('-seed-out-dir', "__SEED_DIR__"),
                             ]
-    nsample = 6
+    nsample = 3
     dist_start = 0
-    for PL, dist_step in [(-2, 4), (-1, 4)]:
+    for PL, dist_step in [(-2, 8), (-1, 8)]:
         for distance in range(dist_start, (nsample * dist_step) + dist_start, dist_step):
             # common
             custom_pta = [('-semu-precondition-length', str(PL)),]

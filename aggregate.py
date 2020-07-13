@@ -247,7 +247,7 @@ def main():
             for tech in tech2time2fd:
                 for time_sec in tech2time2fd[tech]:
                     tech2time2fd[tech][time_sec] = tech2time2fd[tech][time_sec] *1.0 / nbugs
-            yticks_range = range(0, 1.01, 10)
+            yticks_range = np.arange(0, 1.01, 0.1)
             ylabel = "Fault Revelation"
                 
         # plot Trend

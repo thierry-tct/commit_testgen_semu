@@ -35,6 +35,7 @@ from muteria.drivers.testgeneration.tools_by_languages.c.semu.driver_config \
                                              import MetaMuSource, DriverConfigSemu
 
 t_exec_timeout = 60
+gen_max_time = 3600 * 24
 
 OLD = False  # change this to enable old
 
@@ -107,6 +108,7 @@ else:
                         ))
 
     shadow_for_cmp.set_one_test_execution_timeout(t_exec_timeout)
+    shadow_for_cmp.set_test_gen_maxtime(gen_max_time)
 
     
     semu_cmp_list = []
@@ -146,6 +148,7 @@ else:
                                 )
                              )
             semu_test_cmp.set_one_test_execution_timeout(t_exec_timeout)
+            semu_test_cmp.set_test_gen_maxtime(gen_max_time)
             semu_cmp_list.append(semu_test_cmp)
     
     

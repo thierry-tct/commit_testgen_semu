@@ -136,7 +136,7 @@ def plotTrend(name_to_data, image_file, xlabel, ylabel, yticks_range=np.arange(0
     elif legendMode==2:
         lgd = plt.legend(bbox_to_anchor=(0., 0.98, 1.02, .152), loc=2, ncol=3, mode="expand", fontsize=fontsize-5, borderaxespad=0.)
     elif legendMode==3:
-        lgd = plt.legend(bbox_to_anchor=(0., 0.98, 1.02, .282), loc=2, ncol=3, mode="expand", fontsize=fontsize-5, borderaxespad=0.)
+        lgd = plt.legend(bbox_to_anchor=(0., 0.98, 1.02, .302), loc=2, ncol=3, mode="expand", fontsize=fontsize-5, borderaxespad=0.)
     else:
         assert False, "invalid legend mode (expect either 1 or 2)"
     #plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.00), shadow=True, ncol=3)

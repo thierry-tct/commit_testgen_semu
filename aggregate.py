@@ -211,6 +211,10 @@ def main():
         if seen_max_time_sec > max_time:
             print("# WARNING: seen max time higher than max time ({} VS {})".format(seen_max_time_sec, max_time))
             
+        if True:
+            # Sample time sec
+            time_set = np.linspace(0, max(time_set), num=100)
+            
         # compute FD per time
         nbugs = len(id2bugtests)
         ndiffs = len(id2difftests)
@@ -234,7 +238,7 @@ def main():
                         if t >= time_sec:
                             tech2time2fd[tech][t] += 1 
                     
-        normalize = False
+        normalize = True
         
         if not normalize:
             yticks_range = range(0, nbugs, 2)

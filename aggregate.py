@@ -101,7 +101,12 @@ def plotTrend(name_to_data, image_file, xlabel, ylabel, yticks_range=np.arange(0
         order = list(name_to_data)
 
     # get median
-    plotobj = {name: {'x':list(data.keys()), 'y':[y for _,y in data.items()]} for name, data in name_to_data.items()}
+    plotobj = {}
+    for name, data in name_to_data.items():
+        plotobj[name] = {}
+        for x, y in sorted(data.items(), key=lambda v: v[0]):
+            plotobj[name]['x'] = x
+            plotobj[name]['y'] = y
 
     plt.figure(figsize=(13, 9))
     plt.gcf().subplots_adjust(bottom=0.27)
@@ -120,11 +125,18 @@ def plotTrend(name_to_data, image_file, xlabel, ylabel, yticks_range=np.arange(0
     step = 1 #int(min(maxx, 10))
     plt.xticks(list(range(1, maxlenx+1, step)), fontsize=fontsize-5)
     plt.yticks(yticks_range, fontsize=fontsize-5)
-    legendMode=1 if len(order) <= 3 else 2
+    if len(order) <= 3:
+        legendMode = 1
+    elif len(order) <= 6:
+        legendMode = 2
+    else:
+        legendMode = 3
     if legendMode==1:
         lgd = plt.legend(bbox_to_anchor=(0., 0.98, 1., .102), loc=2, ncol=3, mode="expand", fontsize=fontsize-5, borderaxespad=0.)
     elif legendMode==2:
         lgd = plt.legend(bbox_to_anchor=(0., 0.98, 1.02, .152), loc=2, ncol=3, mode="expand", fontsize=fontsize-5, borderaxespad=0.)
+    elif legendMode==3:
+        lgd = plt.legend(bbox_to_anchor=(0., 0.98, 1.02, .252), loc=2, ncol=3, mode="expand", fontsize=fontsize-5, borderaxespad=0.)
     else:
         assert False, "invalid legend mode (expect either 1 or 2)"
     #plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.00), shadow=True, ncol=3)

@@ -232,7 +232,7 @@ def main():
                     techs_finding_bug.add(tech)
                     for t in time_set:
                         if t >= time_sec:
-                            tech2time2fd[tech][time_sec] += 1 
+                            tech2time2fd[tech][t] += 1 
                     
         normalize = False
         

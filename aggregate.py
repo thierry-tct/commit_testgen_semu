@@ -310,9 +310,9 @@ def main():
             heatmap_df = []
             for tech in tech2id2tests:
                 for b_id in tech2id2tests[tech]:
-                    heatmap_df.append({"Technique": tech, "ID": b_id, "#Tests": len(tech2id2tests[tech][b_id])})
+                    heatmap_df.append({"Technique": tech, "Commit/Bug ID": b_id, "#Tests": len(tech2id2tests[tech][b_id])})
             heatmap_df = pd.DataFrame(heatmap_df)
-            plotHeatmap(heatmap_df, "ID", "Technique", "#Tests", heatmap_file)
+            plotHeatmap(heatmap_df, "Commit/Bug ID", "Technique", "#Tests", heatmap_file)
     else:
         # load data
         id2rMSobj = {}

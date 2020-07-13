@@ -96,7 +96,7 @@ linestyles = ['solid', 'solid', 'dashed', 'dashed', 'dashdot', 'dotted', 'solid'
 linewidths = [1.75, 1.75, 2.5, 2.5, 3.25, 3.75, 2] * 2
 markers = ['o', 'x', '^', 's', '*', '+', 'H', 'v', 'p', 'd'] * 2
 
-def plotTrend(name_to_data, image_file, xlabel, ylabel, yticks_range=np.arange(0,1.01,0.2), order=None):
+def plotTrend(name_to_data, image_file, xlabel, ylabel, yticks_range=np.arange(0,1.01,0.2), order=None, x_as_xticks=False):
     if order is None:
         order = list(name_to_data)
 
@@ -123,7 +123,10 @@ def plotTrend(name_to_data, image_file, xlabel, ylabel, yticks_range=np.arange(0
     plt.ylabel(ylabel, fontsize=fontsize)
     plt.xlabel(xlabel, fontsize=fontsize)
     step = 1 #int(min(maxx, 10))
-    plt.xticks(list(range(1, maxlenx+1, step)), fontsize=fontsize-5)
+    if x_as_xticks:
+        plt.xticks(fontsize=fontsize-5)
+    else:
+        plt.xticks(list(range(1, maxlenx+1, step)), fontsize=fontsize-5)
     plt.yticks(yticks_range, fontsize=fontsize-5)
     if len(order) <= 3:
         legendMode = 1
@@ -213,7 +216,7 @@ def main():
             
         if True:
             # Sample time sec
-            time_set = np.linspace(0, max(time_set), num=100)
+            time_set = {int(round(v)) for v in np.linspace(0, max(time_set), num=60)}
             
         # compute FD per time
         nbugs = len(id2bugtests)
@@ -246,13 +249,13 @@ def main():
         else:
             for tech in tech2time2fd:
                 for time_sec in tech2time2fd[tech]:
-                    tech2time2fd[tech][time_sec] = tech2time2fd[tech][time_sec] *1.0 / nbugs
+                    tech2time2fd[tech][time_sec] = tech2time2fd[tech][time_sec] * 1.0 / nbugs
             yticks_range = np.arange(0, 1.01, 0.1)
             ylabel = "Fault Revelation"
                 
         # plot Trend
         linesplotfile = os.path.join(outdir, "lineplot")
-        plotTrend(tech2time2fd, linesplotfile, xlabel="ellapsed time (s)", ylabel=ylabel, yticks_range=yticks_range, order=sorted(list(tech2time2fd)))
+        plotTrend(tech2time2fd, linesplotfile, xlabel="ellapsed time (s)", ylabel=ylabel, yticks_range=yticks_range, order=sorted(list(tech2time2fd)), x_as_xticks=True)
         
         # XXX: Update id2test2time by setting the time of tests without time to the maximum available value
         for b_id, test_set in list(id2bugtests.items()) + list(id2difftests.items()):

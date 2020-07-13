@@ -124,7 +124,7 @@ else:
                                 ('-semu-checknum-before-testgen-for-discarded', '0'),
                                 ('-semu-mutant-state-continue-proba', '0.0'),
                                 #('-semu-max-total-tests-gen', '1000')
-                                ('-semu-max-tests-gen-per-mutant', '30000'),
+                                ('-semu-max-tests-gen-per-mutant', '100000'),
                                 ('-solver-backend', 'z3'),
                                 ('-max-memory', '150000'),
 

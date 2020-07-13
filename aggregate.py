@@ -163,6 +163,21 @@ def plotHeatmap(dataframe, xcol, ycol, datcol, outfile):
     plt.close('all')
 #~ def plotHeatmap()
 
+def string_num_sort_key (v):
+    # string sort until first digit, then number sort
+    res1 = ""
+    res2 = ""
+    for c in v:
+        if c.isdigit():
+            res2 += c
+        else:
+            if res2 == "":
+                res1 += c
+    if res2 == "":
+        res2 = "0"
+    return (res1, int(res2))
+#~ def string_num_sort_key()
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("input_topdir", help="topdir containing the data. The output will also be there")

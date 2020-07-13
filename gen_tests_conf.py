@@ -130,9 +130,9 @@ else:
 
                                 ('-seed-out-dir', "__SEED_DIR__"),
                             ]
-    nsample = 3
+    nsample = 4
     dist_start = 0
-    for PL, dist_step in [(-2, 8), (-1, 8)]:
+    for PL, dist_step in [(-2, 10), (-1, 10)]:
         for distance in range(dist_start, (nsample * dist_step) + dist_start, dist_step):
             # common
             custom_pta = [('-semu-precondition-length', str(PL)),]

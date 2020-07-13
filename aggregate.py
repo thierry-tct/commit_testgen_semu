@@ -103,10 +103,10 @@ def plotTrend(name_to_data, image_file, xlabel, ylabel, yticks_range=np.arange(0
     # get median
     plotobj = {}
     for name, data in name_to_data.items():
-        plotobj[name] = {}
+        plotobj[name] = {'x': [], 'y': []}
         for x, y in sorted(data.items(), key=lambda v: v[0]):
-            plotobj[name]['x'] = x
-            plotobj[name]['y'] = y
+            plotobj[name]['x'].append(x)
+            plotobj[name]['y'].append(y)
 
     plt.figure(figsize=(13, 9))
     plt.gcf().subplots_adjust(bottom=0.27)

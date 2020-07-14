@@ -103,7 +103,7 @@ else:
                             DRIVER_CONFIG=DriverConfigShadow(keep_first_test=False),
                             PRE_TARGET_CMD_ORDERED_FLAGS_LIST=[
                                 ('--search', 'bfs'),
-                                ('-max-memory', '20000')
+                                ('-max-memory', '20480')
                             ]
                         ))
 
@@ -126,7 +126,7 @@ else:
                                 #('-semu-max-total-tests-gen', '1000')
                                 ('-semu-max-tests-gen-per-mutant', '100000'),
                                 ('-solver-backend', 'z3'),
-                                ('-max-memory', '20000'),
+                                ('-max-memory', '20480'),
 
                                 ('-seed-out-dir', "__SEED_DIR__"),
                             ]

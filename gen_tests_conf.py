@@ -119,6 +119,7 @@ else:
                                 ('-semu-forkprocessfor-segv-externalcalls',),
                                 #('-semu-testsgen-only-for-critical-diffs',),
                                 ('-semu-consider-outenv-for-diffs',),
+                                ('-semu-no-error-on-memory-limit',),
                                 ('-semu-disable-post-mutation-check',), # Suport for higher order mutants
 
                                 ('-semu-checknum-before-testgen-for-discarded', '0'),

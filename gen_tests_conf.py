@@ -36,6 +36,7 @@ from muteria.drivers.testgeneration.tools_by_languages.c.semu.driver_config \
 
 t_exec_timeout = 60
 gen_max_time = 3600 * 24
+gen_max_time = 3600 * 4
 
 OLD = False  # change this to enable old
 
@@ -125,7 +126,7 @@ else:
                                 ('-semu-checknum-before-testgen-for-discarded', '0'),
                                 ('-semu-mutant-state-continue-proba', '0.0'),
                                 #('-semu-max-total-tests-gen', '1000')
-                                ('-semu-max-tests-gen-per-mutant', '100000'),
+                                ('-semu-max-tests-gen-per-mutant', '10000'),
                                 ('-solver-backend', 'z3'),
                                 ('-max-memory', '20480'),
 
@@ -133,7 +134,7 @@ else:
                             ]
     nsample = 4
     dist_start = 0
-    for PL, dist_step in [(-2, 10), (-1, 10)]:
+    for PL, dist_step in [(-2, 4), (-1, 2)]:
         for distance in range(dist_start, (nsample * dist_step) + dist_start, dist_step):
             # common
             custom_pta = [('-semu-precondition-length', str(PL)),]

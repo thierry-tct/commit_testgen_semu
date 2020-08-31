@@ -122,6 +122,7 @@ else:
                                 ('-semu-consider-outenv-for-diffs',),
                                 ('-semu-no-error-on-memory-limit',),
                                 ('-semu-disable-post-mutation-check',), # Suport for higher order mutants
+                                ('-semu-quiet',),
 
                                 ('-semu-checknum-before-testgen-for-discarded', '0'),
                                 ('-semu-mutant-state-continue-proba', '0.0'),

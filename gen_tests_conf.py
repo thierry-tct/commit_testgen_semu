@@ -65,6 +65,7 @@ if OLD:
                                 #('-semu-testsgen-only-for-critical-diffs',),
                                 ('-semu-consider-outenv-for-diffs',),
                                 ('-semu-disable-post-mutation-check',), # Suport for higher order mutants
+                                ('-semu-quiet',),
 
                                 ('-semu-checknum-before-testgen-for-discarded', '0'),
                                 ('-semu-mutant-state-continue-proba', '0.0'),

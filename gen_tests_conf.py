@@ -148,7 +148,9 @@ else:
                                 tool_user_custom=ToolUserCustom(
                                     PRE_TARGET_CMD_ORDERED_FLAGS_LIST=(common_pre_target_args+custom_pta),
                                     POST_TARGET_CMD_ORDERED_FLAGS_LIST=semu_sym_args,
-                                    DRIVER_CONFIG = DriverConfigSemu(meta_mutant_source=MetaMuSource.ANNOTATION, verbose_generation=True),
+                                    DRIVER_CONFIG = DriverConfigSemu(meta_mutant_source=MetaMuSource.ANNOTATION, \
+                                                                     verbose_generation=True, \
+                                                                     suppress_generation_stdout=False),
                                 )
                              )
             semu_test_cmp.set_one_test_execution_timeout(t_exec_timeout)

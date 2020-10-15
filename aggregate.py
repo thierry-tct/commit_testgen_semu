@@ -1,4 +1,6 @@
 #! /usr/bin/env python
+# Run as:
+# >> cd DATA && python aggregate.py .
 
 from __future__ import print_function
 
@@ -317,7 +319,8 @@ def main():
         # load data
         id2rMSobj = {}
         for d in os.listdir(input_topdir):
-            if not os.path.isdir(d) or d == "OUTPUT":
+            summary_dir = os.path.join(d, 'summarized_data_dir')
+            if not os.path.isdir(d) or not os.path.isdir(summary_dir) or d == "OUTPUT":
                 continue
             # load data
             filename = os.path.join(input_topdir, d, 'rMS.json')

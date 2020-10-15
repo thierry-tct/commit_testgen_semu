@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 # Run as:
-# >> cd DATA && python aggregate.py .
+# >> cd DATA && python <path to>/aggregate.py .
 
 from __future__ import print_function
 
@@ -323,7 +323,7 @@ def main():
             if not os.path.isdir(d) or not os.path.isdir(summary_dir) or d == "OUTPUT":
                 continue
             # load data
-            filename = os.path.join(input_topdir, d, 'rMS.json')
+            filename = os.path.join(input_topdir, summary_dir, 'rMS.json')
             id2rMSobj[d] = loadJson(filename)
 
         lp_pos_to_id = {}

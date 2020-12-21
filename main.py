@@ -70,6 +70,8 @@ def main():
                                                 help="delete out and restart")
     parser.add_argument('--only_gentests', action="store_true", \
                               help="only generate tests, no mutant execution")
+    parser.add_argument('--no_summarys', action="store_true", \
+                              help="Disable Summary")
 
     args = parser.parse_args()
     outdir = os.path.abspath(args.outdir)
@@ -120,7 +122,8 @@ def main():
     if args.only_gentests:
         cp_data[MUTANT_EXECUTION_PREPA] = True
         cp_data[MUTANT_EXECUTION] = True
-        #cp_data[DATA_SUMMARIZATION] = True
+    if args.no_summary:
+        cp_data[DATA_SUMMARIZATION] = True
 
     if os.path.isfile (checkpoint_file):
         cp_data = common_fs.loadJSON(checkpoint_file)

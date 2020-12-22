@@ -19,8 +19,7 @@ In order to generate test for a given program, the following procedure must be f
 ``` bash
 ./deltaTG <path-to-workspace> 
 ```
-
-The execution will create a folder `<path-to-workspace>/DATA/muteria_output/...` an dthe generated tests are the `.ktest` file in there. 
+The execution will create a folder `<path-to-workspace>/DATA/muteria_output/latest/testscases_workdir/<semu-configuration-folder>/tests_files.tar.gz` an dthe generated tests are the `.ktest` file in there. 
 `.ktest` test format is [KLEE](https://github.com/klee/klee) test format and can be executed using `klee-replay` tool from KLEE.
 
 TODO:

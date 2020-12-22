@@ -70,7 +70,7 @@ def main():
                                                 help="delete out and restart")
     parser.add_argument('--only_gentests', action="store_true", \
                               help="only generate tests, no mutant execution")
-    parser.add_argument('--no_summarys', action="store_true", \
+    parser.add_argument('--no_summary', action="store_true", \
                               help="Disable Summary")
 
     args = parser.parse_args()

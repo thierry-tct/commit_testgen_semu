@@ -62,6 +62,8 @@ MUTANT_EXECUTION_PREPA='mutant_execution_prepa'.upper()
 MUTANT_EXECUTION='mutant_execution'.upper()
 DATA_SUMMARIZATION='data_summarization'.upper()
 
+global_conf_template_folder = "conf_templates"
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('outdir', help="outdir of the execution")
@@ -176,7 +178,7 @@ def collect_seeds(outdir, seeds_out, muteria_output, original_conf, toskip_added
     # set the temporary conf
     tmp_conf = os.path.join(outdir, '_seed_conf.py')
     tmp_conf_template = os.path.join(os.path.dirname(__file__), \
-                                                        'get_seeds_conf.py')
+                                     global_conf_template_folder ,'get_seeds_conf.py')
     prev_sym_args_store_file = tmp_conf + ".symargs.json"
     with open(tmp_conf_template) as f:
         with open(tmp_conf, 'w') as g:
@@ -224,7 +226,7 @@ def collect_seeds(outdir, seeds_out, muteria_output, original_conf, toskip_added
 def generate_tests(outdir, seeds_dir, muteria_output, original_conf, tg_conf, crashcontinue, toskip_added_devtest, no_cov):
     # set the temporary conf
     tmp_conf_template = os.path.join(os.path.dirname(__file__), \
-                                                        'gen_tests_conf.py')
+                                     global_conf_template_folder, 'gen_tests_conf.py')
     with open(tmp_conf_template) as f:
         with open(tg_conf, 'w') as g:
             o_c_dir = os.path.dirname(original_conf)
@@ -397,7 +399,7 @@ def mutant_execution(outdir, avoid_meta_tests_list_file, avoid_meta_mutants_list
     # set the temporary conf
     tmp_conf = os.path.join(outdir, '_mut_exec_conf.py')
     tmp_conf_template = os.path.join(os.path.dirname(__file__), \
-                                                        'mut_exe_conf.py')
+                                     global_conf_template_folder, 'mut_exe_conf.py')
 
     first_time = False
     cp_muteria = common_fs.loadJSON(os.path.join(muteria_output, 'latest', '_controller_dat', 'checkpoint_states', 'execution_state'))

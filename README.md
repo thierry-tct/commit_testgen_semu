@@ -22,6 +22,3 @@ In order to generate test for a given program, the following procedure must be f
 The execution will create a compressed folder `<path-to-workspace>/DATA/muteria_output/latest/testscases_workdir/<semu-configuration-folder>/tests_files.tar.gz`. The generated tests are the `.ktest` file in there. 
 `.ktest` test format is [KLEE](https://github.com/klee/klee) test format and can be executed using `klee-replay` tool from KLEE.
 
-TODO:
-- create the folder `conf_templates` and put the 3 conf template in
-- Make deltaTG executable

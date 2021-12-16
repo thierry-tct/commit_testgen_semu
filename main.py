@@ -72,6 +72,8 @@ def main():
                                                 help="delete out and restart")
     parser.add_argument('--only_gentests', action="store_true", \
                               help="only generate tests, no mutant execution")
+    parser.add_argument('--only_getseeds', action="store_true", \
+                              help="only collect the seeds, no tests generation or mutant execution")
     parser.add_argument('--no_summary', action="store_true", \
                               help="Disable Summary")
 
@@ -121,6 +123,11 @@ def main():
         DATA_SUMMARIZATION: False,
     }
     
+    if args.only_getseeds:
+        cp_data[TEST_GENERATION] = True
+        cp_data[MUTANT_EXECUTION_PREPA] = True
+        cp_data[MUTANT_EXECUTION] = True
+        cp_data[DATA_SUMMARIZATION] = True
     if args.only_gentests:
         cp_data[MUTANT_EXECUTION_PREPA] = True
         cp_data[MUTANT_EXECUTION] = True
